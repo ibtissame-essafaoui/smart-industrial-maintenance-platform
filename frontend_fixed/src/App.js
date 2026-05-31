@@ -4,6 +4,7 @@ import {
   BrowserRouter,
   Routes,
   Route,
+  Navigate,
   useLocation
 } from "react-router-dom";
 
@@ -52,6 +53,7 @@ from "./pages/technician/TechnicianAlertDetails";
 
 import TechnicianPredictions
 from "./pages/technician/TechnicianPredictions";
+
 /* LOGIN */
 
 import Login
@@ -69,153 +71,206 @@ from "./components/TechnicianSidebar";
 
 import "./styles/Admin/sidebar.css";
 
+// ─── COMPOSANT DE ROUTE PROTÉGÉE ─────────────────────────────────────────────
+// Redirige vers /login si l'utilisateur n'est pas authentifié.
+// Si un rôle est requis, vérifie aussi que l'utilisateur possède ce rôle.
+function PrivateRoute({ children, requiredRole }) {
+
+  const token = localStorage.getItem("token");
+  const role  = localStorage.getItem("role");
+
+  // Pas de token → redirection vers la page de connexion
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Rôle insuffisant → redirection vers la page de connexion
+  if (requiredRole && role !== requiredRole) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
+
 function AppContent() {
 
-  const location =
-    useLocation();
+  const location = useLocation();
 
-  const user =
-    JSON.parse(
-      localStorage.getItem(
-        "user"
-      )
-    );
+  // Lire le token et le rôle depuis le localStorage (stockés après connexion)
+  const token = localStorage.getItem("token");
+  const role  = localStorage.getItem("role");
 
-  // =====================
-  // HIDE SIDEBAR LOGIN
-  // =====================
-
-  const isLoginPage =
-
-    location.pathname ===
-    "/login";
+  // La sidebar est masquée sur la page de connexion
+  const isLoginPage = location.pathname === "/login";
 
   return (
 
     <div
       style={{
-
-        display:"flex",
-
-        background:"#f8fafc",
-
-        minHeight:"100vh"
+        display: "flex",
+        background: "#f8fafc",
+        minHeight: "100vh"
       }}
     >
 
-      {/* SIDEBAR */}
+      {/* SIDEBAR : affichée seulement si l'utilisateur est connecté */}
 
-      {
-        !isLoginPage && user && (
+      {!isLoginPage && token && (
+        role === "ADMIN"
+          ? <Sidebar />
+          : <TechnicianSidebar />
+      )}
 
-          user.role === "ADMIN"
-
-          ?
-
-          <Sidebar />
-
-          :
-
-          <TechnicianSidebar />
-
-        )
-      }
-
-      {/* CONTENT */}
+      {/* CONTENU PRINCIPAL */}
 
       <div className="main-content">
 
         <Routes>
 
-          {/* LOGIN */}
+          {/* PAGE DE CONNEXION : accessible à tous */}
 
           <Route
             path="/login"
             element={<Login />}
           />
 
-          {/* ADMIN */}
+          {/* ─── ROUTES ADMIN (rôle ADMIN requis) ─── */}
 
           <Route
             path="/"
-            element={<Dashboard />}
+            element={
+              <PrivateRoute requiredRole="ADMIN">
+                <Dashboard />
+              </PrivateRoute>
+            }
           />
 
           <Route
             path="/equipments"
-            element={<Equipments />}
+            element={
+              <PrivateRoute requiredRole="ADMIN">
+                <Equipments />
+              </PrivateRoute>
+            }
           />
 
           <Route
             path="/add-equipment"
-            element={<AddEquipment />}
+            element={
+              <PrivateRoute requiredRole="ADMIN">
+                <AddEquipment />
+              </PrivateRoute>
+            }
           />
 
           <Route
             path="/alerts"
-            element={<Alerts />}
+            element={
+              <PrivateRoute requiredRole="ADMIN">
+                <Alerts />
+              </PrivateRoute>
+            }
           />
 
           <Route
             path="/alerts/:id"
-            element={<AlertDetails />}
+            element={
+              <PrivateRoute requiredRole="ADMIN">
+                <AlertDetails />
+              </PrivateRoute>
+            }
           />
 
           <Route
             path="/predictions"
-            element={<PredictionPage />}
+            element={
+              <PrivateRoute requiredRole="ADMIN">
+                <PredictionPage />
+              </PrivateRoute>
+            }
           />
 
           <Route
             path="/maintenance-history"
             element={
-              <MaintenanceHistoryPage />
+              <PrivateRoute requiredRole="ADMIN">
+                <MaintenanceHistoryPage />
+              </PrivateRoute>
             }
           />
 
           <Route
             path="/users"
-            element={<UsersPage />}
+            element={
+              <PrivateRoute requiredRole="ADMIN">
+                <UsersPage />
+              </PrivateRoute>
+            }
           />
 
-          {/* TECHNICIAN */}
+          {/* ─── ROUTES TECHNICIEN (rôle TECHNICIEN requis) ─── */}
 
           <Route
             path="/technician"
             element={
-              <TechnicianDashboard />
+              <PrivateRoute requiredRole="TECHNICIEN">
+                <TechnicianDashboard />
+              </PrivateRoute>
             }
           />
+
           <Route
-  path="/technician-maintenance"
-  element={
-    <TechnicianMaintenance />
-  }
-/>
+            path="/technician-maintenance"
+            element={
+              <PrivateRoute requiredRole="TECHNICIEN">
+                <TechnicianMaintenance />
+              </PrivateRoute>
+            }
+          />
 
+          <Route
+            path="/technician-history"
+            element={
+              <PrivateRoute requiredRole="TECHNICIEN">
+                <TechnicianHistory />
+              </PrivateRoute>
+            }
+          />
 
-<Route
-  path="/technician-history"
-  element={
-    <TechnicianHistory />
-  }
-/>
+          <Route
+            path="/technician/alerts"
+            element={
+              <PrivateRoute requiredRole="TECHNICIEN">
+                <TechnicianAlerts />
+              </PrivateRoute>
+            }
+          />
 
+          <Route
+            path="/technician/alerts/:id"
+            element={
+              <PrivateRoute requiredRole="TECHNICIEN">
+                <TechnicianAlertDetails />
+              </PrivateRoute>
+            }
+          />
 
-<Route
-  path="/technician/alerts"
-  element={<TechnicianAlerts />}
-/>
+          <Route
+            path="/technician-predictions"
+            element={
+              <PrivateRoute requiredRole="TECHNICIEN">
+                <TechnicianPredictions />
+              </PrivateRoute>
+            }
+          />
 
-<Route
-  path="/technician/alerts/:id"
-  element={<TechnicianAlertDetails />}
-/>
+          {/* Route par défaut : redirection vers /login */}
 
-<Route
-  path="/technician-predictions"
-  element={<TechnicianPredictions />}
-/>
+          <Route
+            path="*"
+            element={<Navigate to="/login" replace />}
+          />
+
         </Routes>
 
       </div>
@@ -229,9 +284,7 @@ function App() {
   return (
 
     <BrowserRouter>
-
       <AppContent />
-
     </BrowserRouter>
   );
 }

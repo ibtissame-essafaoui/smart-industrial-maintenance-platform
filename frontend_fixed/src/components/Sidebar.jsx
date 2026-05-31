@@ -85,15 +85,14 @@ function Sidebar() {
   };  
 
 
+  // Supprime le token JWT et toutes les données de session, puis redirige
   const logout = () => {
-
-  localStorage.removeItem(
-    "user"
-  );
-
-  window.location.href =
-    "/login";
-};
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("domain");
+    localStorage.removeItem("username");
+    window.location.href = "/login";
+  };
 
   return (
 

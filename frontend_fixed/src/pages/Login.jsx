@@ -21,17 +21,13 @@ function Login() {
     useState(false);
 
   // =========================
-  // LOGIN
+  // CONNEXION
   // =========================
 
   const login = async () => {
 
     if (!username || !password) {
-
-      alert(
-        "Veuillez remplir tous les champs"
-      );
-
+      alert("Veuillez remplir tous les champs");
       return;
     }
 
@@ -39,35 +35,30 @@ function Login() {
 
       setLoading(true);
 
-      const res =
-        await API.post(
-          `/users/login?username=${username}&password=${password}`
-        );
+      // Envoi des credentials en corps JSON (plus sécurisé que les query params)
+      // Le backend retourne { token, role, domain, username }
+      const res = await API.post("/users/login", {
+        username,
+        password
+      });
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify(res.data)
-      );
+      // Stocker le token JWT et les infos utilisateur séparément dans le localStorage
+      localStorage.setItem("token",    res.data.token);
+      localStorage.setItem("role",     res.data.role);
+      localStorage.setItem("domain",   res.data.domain);
+      localStorage.setItem("username", res.data.username);
 
-      if (
-        res.data.role === "ADMIN"
-      ) {
-
+      // Redirection selon le rôle de l'utilisateur
+      if (res.data.role === "ADMIN") {
         window.location.href = "/";
-
       } else {
-
-        window.location.href =
-          "/technician";
+        window.location.href = "/technician";
       }
 
     } catch (err) {
 
       console.log(err);
-
-      alert(
-        "Username ou password incorrect"
-      );
+      alert("Nom d'utilisateur ou mot de passe incorrect");
 
     } finally {
 
@@ -138,9 +129,7 @@ function Login() {
               setPassword(e.target.value)
             }
             onKeyDown={(e) => {
-
               if (e.key === "Enter") {
-
                 login();
               }
             }}
@@ -155,13 +144,7 @@ function Login() {
           onClick={login}
           disabled={loading}
         >
-
-          {
-            loading
-              ? "Connexion..."
-              : "LOGIN"
-          }
-
+          {loading ? "Connexion..." : "LOGIN"}
         </button>
 
       </div>

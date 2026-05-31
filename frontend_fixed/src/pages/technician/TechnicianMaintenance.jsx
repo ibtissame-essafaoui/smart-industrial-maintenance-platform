@@ -4,9 +4,9 @@ import "../../styles/Technician/maintenance.css";
 
 function TechnicianMaintenance() {
 
-    const user = JSON.parse(
-        localStorage.getItem("user")
-    );
+    // Récupérer le domaine et le nom d'utilisateur depuis le localStorage (stockés après connexion JWT)
+    const domain   = localStorage.getItem("domain");
+    const username = localStorage.getItem("username");
 
     const [equipments, setEquipments] = useState([]);
 
@@ -19,7 +19,7 @@ function TechnicianMaintenance() {
         try {
 
             const res = await API.get(
-                `/equipments/domain/${user.domain}`
+                `/equipments/domain/${domain}`
             );
 
             setEquipments(res.data);
@@ -57,7 +57,7 @@ function TechnicianMaintenance() {
         try {
 
             await API.post(
-                `/maintenance/${id}?action=${action}&technician=${user.username}`
+                `/maintenance/${id}?action=${action}&technician=${username}`
             );
 
             loadEquipments();

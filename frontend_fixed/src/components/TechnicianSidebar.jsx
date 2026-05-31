@@ -24,10 +24,8 @@ function TechnicianSidebar() {
   const location =
     useLocation();
 
-  const user =
-    JSON.parse(
-      localStorage.getItem("user")
-    );
+  // Récupérer le domaine du technicien depuis le localStorage (stocké après connexion)
+  const domain = localStorage.getItem("domain");
 
   // =====================
   // NOTIFICATIONS
@@ -51,7 +49,7 @@ function TechnicianSidebar() {
 
         const equipmentsRes =
           await API.get(
-            `/equipments/domain/${user.domain}`
+            `/equipments/domain/${domain}`
           );
 
         const equipments =
@@ -125,14 +123,13 @@ function TechnicianSidebar() {
   // LOGOUT
   // =====================
 
+  // Supprime le token JWT et toutes les données de session, puis redirige
   const logout = () => {
-
-    localStorage.removeItem(
-      "user"
-    );
-
-    window.location.href =
-      "/login";
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("domain");
+    localStorage.removeItem("username");
+    window.location.href = "/login";
   };
 
   return (

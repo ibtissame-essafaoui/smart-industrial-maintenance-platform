@@ -14,12 +14,9 @@ function TechnicianDashboard() {
   // USER
   // ======================
 
-  const user =
-    JSON.parse(
-      localStorage.getItem(
-        "user"
-      )
-    );
+  // Récupérer le domaine et le nom d'utilisateur depuis le localStorage (stockés après connexion JWT)
+  const domain   = localStorage.getItem("domain");
+  const username = localStorage.getItem("username");
 
   // ======================
   // STATES
@@ -49,7 +46,7 @@ function TechnicianDashboard() {
           const res =
             await API.get(
 
-              `/equipments/domain/${user.domain}`
+              `/equipments/domain/${domain}`
 
             );
 
@@ -69,7 +66,7 @@ function TechnicianDashboard() {
 
     fetchData();
 
-  }, [user.domain]);
+  }, [domain]);
 
   // ======================
   // COUNTERS
@@ -110,13 +107,13 @@ function TechnicianDashboard() {
         <div>
 
           <h1>
-           Bienvenue {user.username}
+           Bienvenue {username}
           </h1>
 
           <p>
             Domaine :
             {" "}
-            {user.domain}
+            {domain}
           </p>
 
         </div>

@@ -18,10 +18,8 @@ import "../../styles/Technician/history.css";
 
 function TechnicianHistory() {
 
-  const user =
-    JSON.parse(
-      localStorage.getItem("user")
-    );
+  // Récupérer le domaine du technicien depuis le localStorage (stocké après connexion JWT)
+  const domain = localStorage.getItem("domain");
 
   const [history, setHistory] =
     useState([]);
@@ -42,7 +40,7 @@ function TechnicianHistory() {
 
       const res =
         await API.get(
-          `/maintenance/domain/${user.domain}`
+          `/maintenance/domain/${domain}`
         );
 
       setHistory(res.data);

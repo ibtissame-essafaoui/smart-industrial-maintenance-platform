@@ -23,10 +23,8 @@ function TechnicianAlerts() {
   const navigate =
     useNavigate();
 
-  const user =
-    JSON.parse(
-      localStorage.getItem("user")
-    );
+  // Récupérer le domaine du technicien depuis le localStorage (stocké après connexion JWT)
+  const domain = localStorage.getItem("domain");
 
   const [
     alerts,
@@ -51,7 +49,7 @@ function TechnicianAlerts() {
 
       const equipmentsRes =
         await API.get(
-          `/equipments/domain/${user.domain}`
+          `/equipments/domain/${domain}`
         );
 
       const equipments =
@@ -168,7 +166,7 @@ function TechnicianAlerts() {
           Domaine :
           {" "}
           <strong>
-            {user.domain}
+            {domain}
           </strong>
         </p>
 

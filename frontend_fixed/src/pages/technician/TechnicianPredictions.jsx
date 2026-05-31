@@ -21,13 +21,8 @@ function TechnicianPredictions() {
   const [predictions, setPredictions] =
     useState([]);
 
-  const user =
-    JSON.parse(
-      localStorage.getItem("user")
-    );
-
-  const domain =
-    user?.domain;
+  // Récupérer le domaine du technicien depuis le localStorage (stocké après connexion JWT)
+  const domain = localStorage.getItem("domain");
 
   useEffect(() => {
 
