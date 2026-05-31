@@ -1,0 +1,437 @@
+/* =========================
+   PAGE
+========================= */
+
+.alerts-page{
+  padding:20px;
+  min-height:100vh;
+  background:#f1f5f9;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.page-header{
+  margin-bottom:25px;
+}
+
+.page-header h1{
+  font-size:32px;
+  font-weight:800;
+  color:#0f172a;
+  margin-bottom:6px;
+}
+
+.page-header p{
+  font-size:14px;
+  color:#64748b;
+  font-weight:500;
+}
+
+/* =========================
+   EMPTY
+========================= */
+
+.no-alerts{
+  background:white;
+  border-radius:18px;
+  padding:45px 20px;
+  text-align:center;
+  box-shadow:0 5px 18px rgba(0,0,0,0.05);
+}
+
+.no-alerts h2{
+  font-size:24px;
+  color:#0f172a;
+  margin-bottom:8px;
+}
+
+.no-alerts p{
+  font-size:14px;
+  color:#64748b;
+}
+
+/* =========================
+   GRID
+========================= */
+
+.alerts-grid{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.alert-card{
+
+  position:relative;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:16px;
+
+  background:white;
+
+  border-radius:18px;
+
+  padding:16px 18px;
+
+  border:1px solid #e2e8f0;
+
+  overflow:hidden;
+
+  transition:0.3s ease;
+
+  cursor:pointer;
+
+  box-shadow:
+  0 4px 14px rgba(0,0,0,0.04);
+}
+
+/* HOVER */
+
+.alert-card:hover{
+
+  transform:translateY(-2px);
+
+  box-shadow:
+  0 10px 24px rgba(0,0,0,0.07);
+}
+
+/* =========================
+   NEW ALERT
+========================= */
+
+.unseen{
+
+  background:linear-gradient(
+    135deg,
+    #fff5f5 0%,
+    #ffffff 100%
+  );
+
+  border-left:5px solid #ef4444;
+}
+
+.unseen::before{
+
+  content:"NEW";
+
+  position:absolute;
+
+  top:12px;
+  right:12px;
+
+  background:#ef4444;
+
+  color:white;
+
+  padding:4px 9px;
+
+  border-radius:999px;
+
+  font-size:9px;
+
+  font-weight:800;
+
+  letter-spacing:1px;
+}
+
+/* =========================
+   SEEN
+========================= */
+
+.seen{
+
+  opacity:0.88;
+
+  border-left:5px solid #cbd5e1;
+}
+
+/* =========================
+   TIME
+========================= */
+
+.alert-time{
+
+  min-width:130px;
+
+  font-size:11px;
+
+  color:#64748b;
+
+  font-weight:600;
+}
+
+/* =========================
+   ICON
+========================= */
+
+.alert-icon-box{
+
+  width:52px;
+  height:52px;
+
+  min-width:52px;
+
+  border-radius:14px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:20px;
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.alert-content{
+  flex:1;
+}
+
+/* EQUIPMENT */
+
+.equipment-row{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:6px;
+
+  font-size:15px;
+
+  font-weight:700;
+
+  color:#0f172a;
+
+  margin-bottom:3px;
+}
+
+/* TYPE */
+
+.equipment-type{
+
+  color:#64748b;
+
+  font-size:11px;
+
+  font-weight:700;
+
+  letter-spacing:1px;
+
+  text-transform:uppercase;
+
+  margin-bottom:8px;
+}
+
+/* MESSAGE */
+
+.alert-content h3{
+
+  font-size:17px;
+
+  font-weight:700;
+
+  color:#0f172a;
+
+  margin-bottom:10px;
+
+  line-height:1.4;
+}
+
+/* LEVEL */
+
+.alert-level{
+
+  display:inline-flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  padding:6px 12px;
+
+  border-radius:999px;
+
+  font-size:10px;
+
+  font-weight:800;
+
+  letter-spacing:1px;
+}
+
+/* =========================
+   DOT
+========================= */
+
+.alert-dot{
+
+  position:absolute;
+
+  top:12px;
+  left:12px;
+
+  width:10px;
+  height:10px;
+
+  border-radius:50%;
+
+  background:#ef4444;
+
+  animation:pulseDot 1.4s infinite;
+}
+
+/* =========================
+   CRITICAL
+========================= */
+
+.alert-card.critical .alert-icon-box{
+
+  background:#fee2e2;
+
+  color:#dc2626;
+}
+
+.alert-card.critical .alert-level{
+
+  background:#fee2e2;
+
+  color:#dc2626;
+}
+
+/* =========================
+   HIGH
+========================= */
+
+.alert-card.high .alert-icon-box{
+
+  background:#ffedd5;
+
+  color:#ea580c;
+}
+
+.alert-card.high .alert-level{
+
+  background:#ffedd5;
+
+  color:#ea580c;
+}
+
+/* =========================
+   MEDIUM
+========================= */
+
+.alert-card.medium .alert-icon-box{
+
+  background:#fef9c3;
+
+  color:#ca8a04;
+}
+
+.alert-card.medium .alert-level{
+
+  background:#fef9c3;
+
+  color:#ca8a04;
+}
+
+/* =========================
+   NORMAL
+========================= */
+
+.alert-card.normal .alert-icon-box{
+
+  background:#dbeafe;
+
+  color:#2563eb;
+}
+
+.alert-card.normal .alert-level{
+
+  background:#dbeafe;
+
+  color:#2563eb;
+}
+
+/* =========================
+   ANIMATION
+========================= */
+
+@keyframes pulseDot{
+
+  0%{
+    transform:scale(1);
+    opacity:1;
+  }
+
+  50%{
+    transform:scale(1.5);
+    opacity:0.5;
+  }
+
+  100%{
+    transform:scale(1);
+    opacity:1;
+  }
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:900px){
+
+  .alert-card{
+
+    flex-direction:column;
+
+    align-items:flex-start;
+  }
+
+  .alert-time{
+
+    min-width:auto;
+  }
+}
+
+@media(max-width:600px){
+
+  .alerts-page{
+    padding:14px;
+  }
+
+  .page-header h1{
+    font-size:26px;
+  }
+
+  .alert-card{
+    padding:14px;
+  }
+
+  .alert-content h3{
+    font-size:15px;
+  }
+
+  .equipment-row{
+    font-size:14px;
+  }
+
+  .alert-icon-box{
+
+    width:45px;
+    height:45px;
+
+    min-width:45px;
+
+    font-size:17px;
+  }
+}

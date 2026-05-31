@@ -1,0 +1,173 @@
+import React, { useState } from "react";
+
+import API from "../services/api";
+
+import {
+  FaUser,
+  FaLock
+} from "react-icons/fa";
+
+import "../styles/Login.css";
+
+function Login() {
+
+  const [username, setUsername] =
+    useState("");
+
+  const [password, setPassword] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  // =========================
+  // LOGIN
+  // =========================
+
+  const login = async () => {
+
+    if (!username || !password) {
+
+      alert(
+        "Veuillez remplir tous les champs"
+      );
+
+      return;
+    }
+
+    try {
+
+      setLoading(true);
+
+      const res =
+        await API.post(
+          `/users/login?username=${username}&password=${password}`
+        );
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(res.data)
+      );
+
+      if (
+        res.data.role === "ADMIN"
+      ) {
+
+        window.location.href = "/";
+
+      } else {
+
+        window.location.href =
+          "/technician";
+      }
+
+    } catch (err) {
+
+      console.log(err);
+
+      alert(
+        "Username ou password incorrect"
+      );
+
+    } finally {
+
+      setLoading(false);
+    }
+  };
+
+  return (
+
+    <div className="login-page">
+
+      <div className="overlay"></div>
+
+      <div className="login-card">
+
+        {/* TOP */}
+
+        <div className="login-top">
+
+          <div className="logo-wrapper">
+
+            <img
+              src="/ocp.png"
+              alt="OCP"
+              className="ocp-logo"
+            />
+
+          </div>
+
+          <h1>
+            OCP Smart Maintenance
+          </h1>
+
+          <p>
+            AI Industrial Monitoring Platform
+          </p>
+
+        </div>
+
+        {/* USERNAME */}
+
+        <div className="input-group">
+
+          <FaUser className="input-icon" />
+
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) =>
+              setUsername(e.target.value)
+            }
+          />
+
+        </div>
+
+        {/* PASSWORD */}
+
+        <div className="input-group">
+
+          <FaLock className="input-icon" />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) =>
+              setPassword(e.target.value)
+            }
+            onKeyDown={(e) => {
+
+              if (e.key === "Enter") {
+
+                login();
+              }
+            }}
+          />
+
+        </div>
+
+        {/* BUTTON */}
+
+        <button
+          className="login-btn"
+          onClick={login}
+          disabled={loading}
+        >
+
+          {
+            loading
+              ? "Connexion..."
+              : "LOGIN"
+          }
+
+        </button>
+
+      </div>
+
+    </div>
+  );
+}
+
+export default Login;

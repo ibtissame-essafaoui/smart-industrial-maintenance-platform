@@ -1,0 +1,108 @@
+.history-page{
+
+  padding:30px;
+
+  background:#f4f7fb;
+
+  min-height:100vh;
+}
+
+.history-header{
+
+  margin-bottom:30px;
+}
+
+.history-header h1{
+
+  font-size:32px;
+
+  color:#1e293b;
+
+  margin-bottom:10px;
+}
+
+.history-header p{
+
+  color:#64748b;
+}
+
+.history-grid{
+
+  display:grid;
+
+  grid-template-columns:
+  repeat(auto-fit,minmax(320px,1fr));
+
+  gap:25px;
+}
+
+.history-card{
+
+  background:white;
+
+  border-radius:20px;
+
+  padding:25px;
+
+  box-shadow:
+  0 4px 15px rgba(0,0,0,0.08);
+
+  transition:0.3s;
+}
+
+.history-card:hover{
+
+  transform:translateY(-5px);
+}
+
+.card-top{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:15px;
+
+  margin-bottom:20px;
+}
+
+.tool-icon{
+
+  font-size:28px;
+
+  color:#2563eb;
+}
+
+.card-top h2{
+
+  color:#1e293b;
+
+  font-size:22px;
+}
+
+.history-info{
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:15px;
+}
+
+.history-info p{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:12px;
+
+  color:#475569;
+
+  font-size:15px;
+}
+
+.history-info svg{
+
+  color:#2563eb;
+}
