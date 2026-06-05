@@ -1,8 +1,8 @@
 package com.example.demo.service;
 
-import com.example.demo.dao.EquipmentDao;
 import com.example.demo.dto.DataRequest;
 import com.example.demo.entity.Equipment;
+import com.example.demo.dao.EquipmentDao;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -18,53 +18,61 @@ public class DataGeneratorService {
 
     private final Random random = new Random();
 
-    public DataGeneratorService(EquipmentDao equipmentDao,
-                                DataService dataService) {
-
+    public DataGeneratorService(
+            EquipmentDao equipmentDao,
+            DataService dataService
+    ) {
         this.equipmentDao = equipmentDao;
         this.dataService = dataService;
     }
 
-    // every 1 minute
-
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 3600000)
     public void generateData() {
+
+        System.out.println("GENERATING DATA -> "
+                + java.time.LocalDateTime.now());
 
         List<Equipment> equipments =
                 equipmentDao.findAll();
 
-        for (Equipment equipment : equipments) {
+        for (Equipment eq : equipments) {
 
-            DataRequest request = new DataRequest();
+            DataRequest req =
+                    new DataRequest();
 
-            // 10% anomalies
-
-            float temperature;
-
-            if (random.nextInt(100) < 10) {
-
-                temperature =
-                        90 + random.nextFloat() * 30;
-
-            } else {
-
-                temperature =
-                        40 + random.nextFloat() * 30;
-            }
+            float temperature =
+                    (random.nextInt(100) < 10)
+                            ? 90 + random.nextFloat() * 40
+                            : 40 + random.nextFloat() * 35;
 
             float runtime =
-                    500 + random.nextFloat() * 2500;
+                    500 + random.nextFloat() * 3000;
 
-            request.setTemperature(temperature);
-            request.setRuntime(runtime);
-            request.setEquipmentId(equipment.getId());
+            float vibration =
+                    random.nextFloat() * 8;
 
-            dataService.saveDataFromDto(request);
+            float pressure =
+                    2 + random.nextFloat() * 5;
 
-            System.out.println(
-                    "✅ Data generated for: "
-                            + equipment.getName()
-            );
+            float humidity =
+                    30 + random.nextFloat() * 60;
+
+            float current =
+                    10 + random.nextFloat() * 40;
+
+            float voltage =
+                    370 + random.nextFloat() * 60;
+
+            req.setTemperature(temperature);
+            req.setRuntime(runtime);
+            req.setVibration(vibration);
+            req.setPressure(pressure);
+            req.setHumidity(humidity);
+            req.setCurrentValue(current);
+            req.setVoltage(voltage);
+            req.setEquipmentId(eq.getId());
+
+            dataService.saveDataFromDto(req);
         }
     }
 }

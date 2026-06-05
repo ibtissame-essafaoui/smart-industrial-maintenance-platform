@@ -662,4 +662,44 @@ form{
   border-radius:10px;
   cursor:pointer;
 }
+/* ACTION BUTTONS */
+
+.action-buttons{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.icon-btn{
+  width:38px;
+  height:38px;
+  border:none;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition:0.3s;
+  font-size:16px;
+}
+
+.edit-btn{
+  background:#2563eb;
+  color:white;
+}
+
+.edit-btn:hover{
+  background:#1d4ed8;
+  transform:scale(1.08);
+}
+
+.delete-btn{
+  background:#dc2626;
+  color:white;
+}
+
+.delete-btn:hover{
+  background:#b91c1c;
+  transform:scale(1.08);
+}
 

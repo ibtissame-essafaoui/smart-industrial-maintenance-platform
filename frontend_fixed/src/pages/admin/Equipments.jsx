@@ -12,6 +12,8 @@ import Sidebar from "../../components/Sidebar";
 import {
   FaMicrochip,
   FaTools,
+  FaEdit, 
+  FaTrash,
   FaThermometerHalf
 } from "react-icons/fa";
 
@@ -532,33 +534,27 @@ function Equipments() {
 
                         </td>
 
-                        {/* ACTIONS */}
+{/* ACTIONS */}
 
-                        <td className="action-buttons">
+<td className="action-buttons">
 
-                          <button
-                            className="edit-btn"
-                            onClick={() =>
-                              editEquipment(eq)
-                            }
-                          >
+  <button
+    className="icon-btn edit-btn"
+    onClick={() => editEquipment(eq)}
+    title="Modifier"
+  >
+    <FaEdit />
+  </button>
 
-                            Modifier
+  <button
+    className="icon-btn delete-btn"
+    onClick={() => deleteEquipment(eq.id)}
+    title="Supprimer"
+  >
+    <FaTrash />
+  </button>
 
-                          </button>
-
-                          <button
-                            className="delete-btn"
-                            onClick={() =>
-                              deleteEquipment(eq.id)
-                            }
-                          >
-
-                            Supprimer
-
-                          </button>
-
-                        </td>
+</td>
 
                       </tr>
 

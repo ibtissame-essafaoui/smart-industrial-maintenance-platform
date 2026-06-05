@@ -1,146 +1,84 @@
-
+import joblib
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# =====================================
-# IA PREDICT API
-# =====================================
+model = joblib.load("model.pkl")
 
-@app.route('/predict', methods=['POST'])
+
+@app.route("/predict", methods=["POST"])
 def predict():
 
     data = request.json
 
-    temperature = float(
-        data.get("temperature", 0)
+    temperature = data["temperature"]
+    runtime = data["runtime"]
+    vibration = data["vibration"]
+    pressure = data["pressure"]
+    humidity = data["humidity"]
+    current_value = data["currentValue"]
+    voltage = data["voltage"]
+
+    features = [[
+        temperature,
+        runtime,
+        vibration,
+        pressure,
+        humidity,
+        current_value,
+        voltage
+    ]]
+
+    prediction = model.predict(features)[0]
+
+    probability = float(
+        max(model.predict_proba(features)[0])
     )
 
-    runtime = float(
-        data.get("runtime", 0)
-    )
+    # ===================================
+    # CAUSE + SOLUTION
+    # ===================================
 
-    prediction = "OK"
-    probability = 0.99
+    cause = "Aucune cause détectée"
+    solution = "Aucune solution recommandée"
 
-    analysis = ""
-    cause = ""
-    solution = ""
+    if temperature > 100:
+        cause = "Surchauffe de l'équipement"
+        solution = "Vérifier le système de refroidissement"
 
-    # =====================================
-    # PANNE
-    # =====================================
+    elif vibration > 7:
+        cause = "Vibration excessive"
+        solution = "Contrôler les roulements et l'alignement"
 
-    if (
-        temperature >= 105
-        or runtime >= 2200
-    ):
+    elif runtime > 2500:
+        cause = "Temps de fonctionnement élevé"
+        solution = "Planifier une maintenance préventive"
 
-        prediction = "PANNE"
-        probability = 0.98
+    elif current_value > 45:
+        cause = "Surintensité moteur"
+        solution = "Inspecter le moteur électrique"
 
-        analysis = (
-            "Panne imminente détectée."
-        )
+    elif voltage < 360:
+        cause = "Tension électrique faible"
+        solution = "Vérifier l'alimentation électrique"
 
-        if temperature >= 105:
+    elif pressure > 6:
+        cause = "Pression anormale"
+        solution = "Contrôler les vannes et les capteurs"
 
-            cause = (
-                "Surchauffe critique moteur."
-            )
-
-            solution = (
-                "Arrêter immédiatement l’équipement."
-            )
-
-        else:
-
-            cause = (
-                "Durée excessive de fonctionnement."
-            )
-
-            solution = (
-                "Maintenance complète urgente."
-            )
-
-    # =====================================
-    # RISQUE
-    # =====================================
-
-    elif (
-        temperature >= 90
-        or runtime >= 1500
-    ):
-
-        prediction = "RISQUE"
-        probability = 0.80
-
-        analysis = (
-            "Risque de panne détecté."
-        )
-
-        if temperature >= 90:
-
-            cause = (
-                "Température élevée."
-            )
-
-            solution = (
-                "Vérifier le système de refroidissement."
-            )
-
-        else:
-
-            cause = (
-                "Usure avancée des composants."
-            )
-
-            solution = (
-                "Prévoir maintenance préventive."
-            )
-
-    # =====================================
-    # OK
-    # =====================================
-
-    else:
-
-        prediction = "OK"
-        probability = 0.99
-
-        analysis = (
-            "Equipement stable."
-        )
-
-        cause = (
-            "Aucun problème détecté."
-        )
-
-        solution = (
-            "Continuer surveillance normale."
-        )
+    # ===================================
 
     return jsonify({
-
         "prediction": prediction,
-
         "probability": probability,
-
-        "analysis": analysis,
-
         "cause": cause,
-
         "solution": solution
     })
 
-# =====================================
-# RUN SERVER
-# =====================================
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     app.run(
-        debug=True,
-        port=5000
+        host="0.0.0.0",
+        port=5000,
+        debug=True
     )
-

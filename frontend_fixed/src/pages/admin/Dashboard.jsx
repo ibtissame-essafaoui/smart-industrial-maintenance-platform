@@ -1,194 +1,151 @@
-import React, {
-  useEffect,
-  useState
-} from "react";
-
+import React, { useEffect, useState } from "react";
 import API from "../../services/api";
-
 import Sidebar from "../../components/Sidebar";
 
 import {
   ResponsiveContainer,
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
   CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-  AreaChart,
-  Area,
-  BarChart,
-  Bar
+  Legend
 } from "recharts";
 
 import {
   FaMicrochip,
   FaTemperatureHigh,
-  FaTools,
   FaExclamationTriangle,
   FaChartLine,
-  FaClock
+  FaClock,
+  FaTools
 } from "react-icons/fa";
 
 import "../../styles/Admin/dashboard.css";
 
 function Dashboard() {
 
-  const [data, setData] =
-    useState([]);
-
-  const [latestData, setLatestData] =
-    useState([]);
-
-  // =========================================
-  // LOAD DATA
-  // =========================================
+  const [equipments, setEquipments] = useState([]);
 
   useEffect(() => {
-
-    loadData();
-
+    loadEquipments();
   }, []);
 
-  const loadData = async () => {
+  const loadEquipments = async () => {
 
     try {
 
-      const response =
-        await API.get("/data");
+      const res =
+        await API.get(
+          "/equipments/with-data"
+        );
 
-      const allData =
-        Array.isArray(response.data)
-          ? response.data
-          : [];
-
-      setData(allData);
-
-      // LAST 10 DATA
-
-      setLatestData(
-        [...allData]
-          .reverse()
-          .slice(0, 10)
+      setEquipments(
+        Array.isArray(res.data)
+          ? res.data
+          : []
       );
 
-    } catch (error) {
+    } catch (err) {
 
-      console.log(error);
+      console.log(err);
 
     }
   };
 
-  // =========================================
+  // ============================
   // KPI
-  // =========================================
+  // ============================
 
   const avgTemp =
-
-    data.length > 0
-
+    equipments.length > 0
       ? (
-
-          data.reduce(
-            (a, b) =>
-              a + b.temperature,
+          equipments.reduce(
+            (sum, eq) =>
+              sum + (eq.temperature || 0),
             0
-          ) / data.length
-
+          ) / equipments.length
         ).toFixed(1)
-
       : 0;
 
   const avgRuntime =
-
-    data.length > 0
-
+    equipments.length > 0
       ? (
-
-          data.reduce(
-            (a, b) =>
-              a + b.runtime,
+          equipments.reduce(
+            (sum, eq) =>
+              sum + (eq.runtime || 0),
             0
-          ) / data.length
-
+          ) / equipments.length
         ).toFixed(0)
-
       : 0;
 
-  const critical =
-
-    data.filter(
-      d =>
-        d.temperature >= 100
-        || d.runtime >= 2000
+  const criticalEquipments =
+    equipments.filter(
+      eq =>
+        (eq.temperature || 0) >= 100 ||
+        eq.status === "EN_PANNE"
     ).length;
 
-  const activeMachines =
-
-    data.filter(
-      d =>
-        d.temperature < 100
+  const activeEquipments =
+    equipments.filter(
+      eq =>
+        eq.status === "ACTIF"
     ).length;
 
-  // =========================================
-  // PIE DATA
-  // =========================================
+  // ============================
+  // PIE
+  // ============================
 
   const pieData = [
-
     {
       name: "Critical",
-      value: critical
+      value: criticalEquipments
     },
-
     {
-      name: "Normal",
-      value: activeMachines
+      name: "Active",
+      value: activeEquipments
     }
-
   ];
 
   const COLORS = [
-
     "#ef4444",
     "#22c55e"
-
   ];
 
-  // =========================================
-  // FORMAT CHART
-  // =========================================
+  // ============================
+  // CHART DATA
+  // ============================
 
   const chartData =
-    latestData.map((d) => ({
+    equipments.map((eq) => ({
 
-      id: d.id,
+      id: eq.id,
+
+      equipmentName:
+        eq.name,
+
+      domaine:
+        eq.domaine || "N/A",
 
       temperature:
-        d.temperature,
+        eq.temperature || 0,
 
       runtime:
-        d.runtime
+        eq.runtime || 0
 
     }));
-
-  // =========================================
-  // RENDER
-  // =========================================
 
   return (
 
     <div className="dashboard-layout">
 
-      {/* SIDEBAR */}
-
       <Sidebar />
-
-      {/* CONTENT */}
 
       <div className="dashboard-page">
 
@@ -199,11 +156,11 @@ function Dashboard() {
           <div>
 
             <h1 className="dashboard-title">
-              Smart Maintenance
+              Smart Maintenance Dashboard
             </h1>
 
             <p className="dashboard-subtitle">
-              AI Industrial Monitoring Platform
+              Industrial Monitoring Platform
             </p>
 
           </div>
@@ -214,8 +171,6 @@ function Dashboard() {
 
         <div className="kpi-grid">
 
-          {/* TEMP */}
-
           <div className="kpi-card blue">
 
             <div className="kpi-icon">
@@ -225,18 +180,16 @@ function Dashboard() {
             <div>
 
               <span>
-                Average Temp
+                Average Temperature
               </span>
 
               <h2>
-                {avgTemp}°C
+                {avgTemp} °C
               </h2>
 
             </div>
 
           </div>
-
-          {/* RUNTIME */}
 
           <div className="kpi-card orange">
 
@@ -247,7 +200,7 @@ function Dashboard() {
             <div>
 
               <span>
-                Avg Runtime
+                Average Runtime
               </span>
 
               <h2>
@@ -258,8 +211,6 @@ function Dashboard() {
 
           </div>
 
-          {/* CRITICAL */}
-
           <div className="kpi-card red">
 
             <div className="kpi-icon">
@@ -269,18 +220,16 @@ function Dashboard() {
             <div>
 
               <span>
-                Critical Alerts
+                Critical Equipments
               </span>
 
               <h2>
-                {critical}
+                {criticalEquipments}
               </h2>
 
             </div>
 
           </div>
-
-          {/* TOTAL */}
 
           <div className="kpi-card green">
 
@@ -291,11 +240,11 @@ function Dashboard() {
             <div>
 
               <span>
-                Total Data
+                Total Equipments
               </span>
 
               <h2>
-                {data.length}
+                {equipments.length}
               </h2>
 
             </div>
@@ -308,8 +257,6 @@ function Dashboard() {
 
         <div className="main-grid">
 
-          {/* AREA CHART */}
-
           <div className="chart-card">
 
             <div className="card-title">
@@ -317,7 +264,7 @@ function Dashboard() {
               <FaChartLine />
 
               <h2>
-                Temperature Evolution
+                Temperature Analysis
               </h2>
 
             </div>
@@ -331,37 +278,13 @@ function Dashboard() {
                 data={chartData}
               >
 
-                <defs>
-
-                  <linearGradient
-                    id="colorTemp"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-
-                    <stop
-                      offset="5%"
-                      stopColor="#3b82f6"
-                      stopOpacity={0.8}
-                    />
-
-                    <stop
-                      offset="95%"
-                      stopColor="#3b82f6"
-                      stopOpacity={0}
-                    />
-
-                  </linearGradient>
-
-                </defs>
-
                 <CartesianGrid
                   strokeDasharray="3 3"
                 />
 
-                <XAxis dataKey="id" />
+                <XAxis
+                  dataKey="equipmentName"
+                />
 
                 <YAxis />
 
@@ -371,8 +294,7 @@ function Dashboard() {
                   type="monotone"
                   dataKey="temperature"
                   stroke="#3b82f6"
-                  fillOpacity={1}
-                  fill="url(#colorTemp)"
+                  fill="#93c5fd"
                 />
 
               </AreaChart>
@@ -381,8 +303,6 @@ function Dashboard() {
 
           </div>
 
-          {/* PIE */}
-
           <div className="status-card">
 
             <div className="card-title">
@@ -390,7 +310,7 @@ function Dashboard() {
               <FaTools />
 
               <h2>
-                System Status
+                Equipment Status
               </h2>
 
             </div>
@@ -410,7 +330,6 @@ function Dashboard() {
                 >
 
                   {
-
                     pieData.map(
                       (entry, index) => (
 
@@ -421,7 +340,6 @@ function Dashboard() {
 
                       )
                     )
-
                   }
 
                 </Pie>
@@ -438,7 +356,7 @@ function Dashboard() {
 
         </div>
 
-        {/* SECOND CHART */}
+        {/* RUNTIME */}
 
         <div className="chart-card full-width">
 
@@ -457,13 +375,17 @@ function Dashboard() {
             height={320}
           >
 
-            <BarChart data={chartData}>
+            <BarChart
+              data={chartData}
+            >
 
               <CartesianGrid
                 strokeDasharray="3 3"
               />
 
-              <XAxis dataKey="id" />
+              <XAxis
+                dataKey="equipmentName"
+              />
 
               <YAxis />
 
@@ -474,7 +396,6 @@ function Dashboard() {
               <Bar
                 dataKey="runtime"
                 fill="#f97316"
-                radius={[8, 8, 0, 0]}
               />
 
             </BarChart>
@@ -492,7 +413,7 @@ function Dashboard() {
             <FaMicrochip />
 
             <h2>
-              Latest Monitoring Data
+              Equipments Overview
             </h2>
 
           </div>
@@ -504,16 +425,11 @@ function Dashboard() {
               <tr>
 
                 <th>ID</th>
-
-                <th>Equipment</th>
-
+                <th>Name</th>
+                <th>Domaine</th>
                 <th>Temperature</th>
-
                 <th>Runtime</th>
-
                 <th>Status</th>
-
-                <th>Date</th>
 
               </tr>
 
@@ -522,86 +438,67 @@ function Dashboard() {
             <tbody>
 
               {
+                equipments.map(
+                  (eq) => (
 
-                latestData.map((d) => (
+                    <tr key={eq.id}>
 
-                  <tr key={d.id}>
+                      <td>
+                        #{eq.id}
+                      </td>
 
-                    <td>
-                      #{d.id}
-                    </td>
+                      <td>
+                        {eq.name}
+                      </td>
 
-                    <td>
-                      {
-                        d.equipment?.name
-                        || "N/A"
-                      }
-                    </td>
+                      <td>
+                        {eq.domaine || "-"}
+                      </td>
 
-                    <td>
+                      <td>
 
-                      <span
-                        className={
-                          d.temperature >= 100
-                            ? "danger-text"
-                            : "normal-text"
-                        }
-                      >
+                        <span
+                          className={
+                            eq.temperature >= 100
+                              ? "danger-text"
+                              : "normal-text"
+                          }
+                        >
 
-                        {d.temperature}°C
+                          {eq.temperature || 0}°C
 
-                      </span>
+                        </span>
 
-                    </td>
+                      </td>
 
-                    <td>
-                      {d.runtime} h
-                    </td>
+                      <td>
 
-                    <td>
+                        {eq.runtime || 0} h
 
-                      {
+                      </td>
 
-                        d.temperature >= 100
+                      <td>
 
-                          ? (
+                        <span
+                          className={
+                            eq.status === "EN_PANNE"
+                              ? "status critical"
+                              : eq.status === "EN_MAINTENANCE"
+                              ? "status maintenance"
+                              : "status running"
+                          }
+                        >
 
-                            <span className="status critical">
-                              Critical
-                            </span>
+                          {eq.status}
 
-                          )
+                        </span>
 
-                          : (
+                      </td>
 
-                            <span className="status running">
-                              Normal
-                            </span>
+                    </tr>
 
-                          )
-
-                      }
-
-                    </td>
-
-                    <td>
-
-                      {
-                        d.date
-
-                          ? new Date(
-                              d.date
-                            ).toLocaleString()
-
-                          : "-"
-                      }
-
-                    </td>
-
-                  </tr>
-
-                ))
-
+                  )
+                )
               }
 
             </tbody>
@@ -613,7 +510,6 @@ function Dashboard() {
       </div>
 
     </div>
-
   );
 }
 
