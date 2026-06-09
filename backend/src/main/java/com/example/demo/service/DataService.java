@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import com.example.demo.entity.EquipmentStatus;
 @Service
 public class DataService {
 
@@ -197,6 +197,16 @@ public class DataService {
 
             if ("PANNE".equalsIgnoreCase(result)) {
 
+                System.out.println("🚨 ENTERED PANNE BLOCK");
+
+                equipment.setStatus(
+                        EquipmentStatus.EN_PANNE
+                );
+
+                equipmentDao.saveAndFlush(
+                        equipment
+                );
+
                 Alert alert = new Alert();
 
                 alert.setMessage(
@@ -208,19 +218,34 @@ public class DataService {
                 alert.setCause(cause);
                 alert.setDate(LocalDateTime.now());
                 alert.setEquipment(equipment);
-                alert.setSeen(false);
+                alert.setSeenAdmin(false);
+                alert.setSeenTechnician(false);
 
                 alertDao.saveAndFlush(alert);
 
-                System.out.println(
-                        "🚨 Alert Saved -> PANNE"
-                );
+                System.out.println("🚨 Alert Saved -> PANNE");
             }
             else {
 
+                // Si l'équipement n'est pas en maintenance
+                // on le remet ACTIF
+
+                if (
+                        equipment.getStatus() !=
+                                EquipmentStatus.EN_MAINTENANCE
+                ) {
+
+                    equipment.setStatus(
+                            EquipmentStatus.ACTIF
+                    );
+
+                    equipmentDao.saveAndFlush(
+                            equipment
+                    );
+                }
+
                 System.out.println(
-                        "✅ No Alert Created -> "
-                                + result
+                        "✅ Equipment Active"
                 );
             }
 

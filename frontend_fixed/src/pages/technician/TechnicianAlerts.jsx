@@ -23,8 +23,8 @@ function TechnicianAlerts() {
   const navigate =
     useNavigate();
 
-  // Récupérer le domaine du technicien depuis le localStorage (stocké après connexion JWT)
-  const domain = localStorage.getItem("domain");
+  const domain =
+    localStorage.getItem("domain");
 
   const [
     alerts,
@@ -45,52 +45,29 @@ function TechnicianAlerts() {
 
     try {
 
-      // équipements domaine
-
-      const equipmentsRes =
+      const res =
         await API.get(
-          `/equipments/domain/${domain}`
+          `/alerts/domain/${domain}`
         );
 
-      const equipments =
-        equipmentsRes.data;
+      const sortedAlerts =
+        [...res.data].sort(
 
-      // alertes
+          (a, b) =>
 
-      const alertsRes =
-        await API.get("/alerts");
+            new Date(b.date) -
+            new Date(a.date)
 
-      // filtrage domaine
-
-      const filteredAlerts =
-        alertsRes.data.filter(
-
-          (alert) =>
-
-            equipments.some(
-              (eq) =>
-                eq.id ===
-                alert.equipment?.id
-            )
         );
-
-      // tri date
-
-      filteredAlerts.sort(
-
-        (a, b) =>
-
-          new Date(b.date) -
-          new Date(a.date)
-      );
 
       setAlerts(
-        filteredAlerts
+        sortedAlerts
       );
 
-    } catch(err){
+    } catch (err) {
 
       console.log(err);
+
     }
   };
 
@@ -98,12 +75,16 @@ function TechnicianAlerts() {
   // FORMAT DATE
   // =========================
 
-  const formatDate = (dateString) => {
+  const formatDate = (
+    dateString
+  ) => {
 
-    const date =
-      new Date(dateString);
+    if (!dateString)
+      return "-";
 
-    return date.toLocaleString();
+    return new Date(
+      dateString
+    ).toLocaleString();
   };
 
   // =========================
@@ -115,13 +96,9 @@ function TechnicianAlerts() {
 
       try {
 
-        // mark as read
-
         await API.put(
-          `/alerts/read/${alertId}`
+          `/alerts/technician/read/${alertId}`
         );
-
-        // update frontend instant
 
         setAlerts((prev) =>
 
@@ -131,24 +108,27 @@ function TechnicianAlerts() {
 
               ? {
                   ...a,
-                  seen:true
+                  seenTechnician: true
                 }
 
               : a
           )
         );
 
-        // navigate
-
         navigate(
           `/technician/alerts/${alertId}`
         );
 
-      } catch(err){
+      } catch (err) {
 
         console.log(err);
+
       }
     };
+
+  // =========================
+  // RENDER
+  // =========================
 
   return (
 
@@ -163,11 +143,15 @@ function TechnicianAlerts() {
         </h1>
 
         <p>
+
           Domaine :
+
           {" "}
+
           <strong>
             {domain}
           </strong>
+
         </p>
 
       </div>
@@ -200,6 +184,7 @@ function TechnicianAlerts() {
           alerts.map((alert) => (
 
             <div
+
               key={alert.id}
 
               onClick={() =>
@@ -208,12 +193,16 @@ function TechnicianAlerts() {
 
               className={`
                 alert-card
-                ${alert.level.toLowerCase()}
-                ${alert.seen ? "seen" : "unseen"}
+                ${alert.level?.toLowerCase()}
+                ${
+                  alert.seenTechnician
+                    ? "seen"
+                    : "unseen"
+                }
               `}
             >
 
-              {/* TIME */}
+              {/* DATE */}
 
               <div className="alert-time">
 
@@ -231,27 +220,19 @@ function TechnicianAlerts() {
 
                 {
 
-                  alert.message.includes(
+                  alert.message?.includes(
                     "Température"
                   )
 
-                  ?
+                    ? <FaTemperatureHigh />
 
-                  <FaTemperatureHigh />
+                    : alert.message?.includes(
+                        "Runtime"
+                      )
 
-                  :
+                    ? <FaClock />
 
-                  alert.message.includes(
-                    "Runtime"
-                  )
-
-                  ?
-
-                  <FaClock />
-
-                  :
-
-                  <FaTools />
+                    : <FaTools />
                 }
 
               </div>
@@ -265,9 +246,11 @@ function TechnicianAlerts() {
                   <FaMicrochip />
 
                   <span>
+
                     {
                       alert.equipment?.name
                     }
+
                   </span>
 
                 </div>
@@ -295,16 +278,21 @@ function TechnicianAlerts() {
               </div>
 
               {
-                !alert.seen && (
+
+                !alert.seenTechnician && (
 
                   <div className="alert-dot">
 
                   </div>
+
                 )
+
               }
 
             </div>
+
           ))
+
         }
 
       </div>

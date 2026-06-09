@@ -40,51 +40,25 @@ function TechnicianSidebar() {
   // LOAD ALERTS COUNT
   // =====================
 
-  const loadNotifications =
-    async () => {
+const loadNotifications =
+  async () => {
 
-      try {
+    try {
+const res =
+  await API.get(
+    `/alerts/technician/count-unread/${domain}`
+  );
 
-        // équipements domaine
+      setNotifCount(
+        res.data
+      );
 
-        const equipmentsRes =
-          await API.get(
-            `/equipments/domain/${domain}`
-          );
+    } catch (err) {
 
-        const equipments =
-          equipmentsRes.data;
+      console.log(err);
 
-        // alertes
-
-        const alertsRes =
-          await API.get("/alerts");
-
-        // unread count
-
-        const unread =
-          alertsRes.data.filter(
-
-            (alert) =>
-
-              !alert.seen &&
-
-              equipments.some( 
-                (eq) =>
-                  eq.id ===
-                  alert.equipment?.id
-              )
-          );
-
-        setNotifCount(
-          unread.length
-        );
-
-      } catch(err){
-
-        console.log(err);
-      }
-    };
+    }
+  };
 
   // =====================
   // AUTO REFRESH
@@ -92,19 +66,19 @@ function TechnicianSidebar() {
 
   useEffect(() => {
 
-    loadNotifications();
+  loadNotifications();
 
-    const interval =
-      setInterval(() => {
+  const interval =
+    setInterval(() => {
 
-        loadNotifications();
+      loadNotifications();
 
-      }, 2000);
+    }, 2000);
 
-    return () =>
-      clearInterval(interval);
+  return () =>
+    clearInterval(interval);
 
-  }, []);
+}, [location.pathname]);
 
   // =====================
   // ACTIVE LINK

@@ -1,64 +1,71 @@
-import React, {
-  useEffect,
-  useState
-} from "react";
-
+import React, { useEffect, useState } from "react";
 import API from "../../services/api";
-
 import Sidebar from "../../components/Sidebar";
 
 import {
   FaTools,
   FaUser,
   FaClock,
-  FaMicrochip
+  FaMicrochip,
+  FaSearch
 } from "react-icons/fa";
 
 import "../../styles/Admin/maintenanceHistory.css";
 
 function MaintenanceHistoryPage() {
-
-  const [history, setHistory] =
-    useState([]);
-
-  // =========================
-  // LOAD HISTORY
-  // =========================
+  const [history, setHistory] = useState([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-
     loadHistory();
-
   }, []);
 
   const loadHistory = async () => {
-
     try {
-
-      const res =
-        await API.get("/maintenance");
+      const res = await API.get("/maintenance");
 
       setHistory(
         Array.isArray(res.data)
           ? res.data
           : []
       );
-
     } catch (err) {
-
-      console.log(err);
+      console.error(err);
     }
   };
 
+  const filteredHistory = history.filter((item) => {
+    const keyword = search.toLowerCase();
+
+    return (
+      item.equipment?.name
+        ?.toLowerCase()
+        .includes(keyword) ||
+      item.technician
+        ?.toLowerCase()
+        .includes(keyword) ||
+      item.action
+        ?.toLowerCase()
+        .includes(keyword)
+    );
+  });
+
+  const totalInterventions =
+    history.length;
+
+  const finishedInterventions =
+    history.filter(
+      (item) => item.endDate
+    ).length;
+
+  const runningInterventions =
+    history.filter(
+      (item) => !item.endDate
+    ).length;
+
   return (
-
     <div className="admin-layout">
-
-      {/* SIDEBAR */}
-
       <Sidebar />
-
-      {/* PAGE */}
 
       <div className="history-page">
 
@@ -69,14 +76,71 @@ function MaintenanceHistoryPage() {
           <FaTools className="history-icon" />
 
           <div>
-
             <h1>
-              Historique Maintenance
+              Maintenance History
             </h1>
 
             <p>
-              Interventions techniques
+              Track all maintenance interventions
             </p>
+          </div>
+
+        </div>
+
+        {/* KPI */}
+
+        <div className="stats-grid">
+
+          <div className="stat-card">
+            <h3>
+              {totalInterventions}
+            </h3>
+
+            <p>
+              Total Interventions
+            </p>
+          </div>
+
+          <div className="stat-card">
+            <h3>
+              {runningInterventions}
+            </h3>
+
+            <p>
+              Running
+            </p>
+          </div>
+
+          <div className="stat-card">
+            <h3>
+              {finishedInterventions}
+            </h3>
+
+            <p>
+              Finished
+            </p>
+          </div>
+
+        </div>
+
+        {/* SEARCH */}
+
+        <div className="search-container">
+
+          <div className="search-box">
+
+            <FaSearch />
+
+            <input
+              type="text"
+              placeholder="Search maintenance..."
+              value={search}
+              onChange={(e) =>
+                setSearch(
+                  e.target.value
+                )
+              }
+            />
 
           </div>
 
@@ -92,29 +156,17 @@ function MaintenanceHistoryPage() {
 
               <tr>
 
-                <th>
-                  Equipement
-                </th>
+                <th>Equipment</th>
 
-                <th>
-                  Technicien
-                </th>
+                <th>Technician</th>
 
-                <th>
-                  Action
-                </th>
+                <th>Action</th>
 
-                <th>
-                  Début
-                </th>
+                <th>Start Date</th>
 
-                <th>
-                  Fin
-                </th>
+                <th>End Date</th>
 
-                <th>
-                  Durée
-                </th>
+                <th>Duration</th>
 
               </tr>
 
@@ -122,104 +174,106 @@ function MaintenanceHistoryPage() {
 
             <tbody>
 
-              {
-                history.map((item) => (
+              {filteredHistory.length === 0 ? (
 
-                  <tr key={item.id}>
+                <tr>
 
-                    {/* EQUIPMENT */}
+                  <td
+                    colSpan="6"
+                    style={{
+                      textAlign:
+                        "center",
+                      padding:
+                        "30px"
+                    }}
+                  >
+                    No maintenance found
+                  </td>
 
-                    <td>
+                </tr>
 
-                      <div className="td-flex">
+              ) : (
 
-                        <FaMicrochip />
+                filteredHistory.map(
+                  (item) => (
 
-                        {
-                          item.equipment?.name
-                        }
+                    <tr
+                      key={item.id}
+                    >
 
-                      </div>
+                      <td>
 
-                    </td>
+                        <div className="td-flex">
 
-                    {/* TECHNICIAN */}
+                          <FaMicrochip />
 
-                    <td>
+                          {item.equipment?.name ||
+                            "N/A"}
 
-                      <div className="td-flex">
+                        </div>
 
-                        <FaUser />
+                      </td>
 
-                        {
-                          item.technician ||
-                          "N/A"
-                        }
+                      <td>
 
-                      </div>
+                        <div className="td-flex">
 
-                    </td>
+                          <FaUser />
 
-                    {/* ACTION */}
+                          {item.technician ||
+                            "N/A"}
 
-                    <td>
+                        </div>
 
-                      {
-                        item.action ||
-                        "Maintenance démarrée"
-                      }
+                      </td>
 
-                    </td>
+                      <td>
 
-                    {/* START */}
+                        {item.action ||
+                          "Maintenance Started"}
 
-                    <td>
+                      </td>
 
-                      {
-                        item.startDate
+                      <td>
+
+                        {item.startDate
                           ? new Date(
                               item.startDate
                             ).toLocaleString()
-                          : "-"
-                      }
+                          : "-"}
 
-                    </td>
+                      </td>
 
-                    {/* END */}
+                      <td>
 
-                    <td>
-
-                      {
-                        item.endDate
+                        {item.endDate
                           ? new Date(
                               item.endDate
                             ).toLocaleString()
-                          : "-"
-                      }
+                          : "-"}
 
-                    </td>
+                      </td>
 
-                    {/* DURATION */}
+                      <td>
 
-                    <td>
+                        <div className="duration">
 
-                      <div className="duration">
+                          <FaClock />
 
-                        <FaClock />
-
-                        {
-                          item.durationMinutes
+                          {item.durationMinutes
                             ? `${item.durationMinutes} min`
-                            : "En cours"
-                        }
+                            : "Running"}
 
-                      </div>
+                        </div>
 
-                    </td>
+                      </td>
 
-                  </tr>
-                ))
-              }
+                    </tr>
+
+                  )
+                )
+
+              )}
 
             </tbody>
 

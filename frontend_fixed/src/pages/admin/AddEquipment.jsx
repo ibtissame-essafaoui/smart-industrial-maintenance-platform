@@ -3,27 +3,26 @@ import API from "../../services/api";
 
 import {
   FaMicrochip,
-  FaSave
+  FaSave,
+  FaIndustry
 } from "react-icons/fa";
+
+import "../../styles/Admin/addEquipment.css";
 
 function AddEquipment() {
 
   const [equipment, setEquipment] = useState({
-
     name: "",
     type: "POMPE",
-    status: "ACTIF"
-
+    status: "ACTIF",
+    domain: "HYDRAULIQUE"
   });
 
   const handleChange = (e) => {
 
     setEquipment({
-
       ...equipment,
-
       [e.target.name]: e.target.value
-
     });
 
   };
@@ -39,24 +38,21 @@ function AddEquipment() {
         equipment
       );
 
-      alert("✅ Equipment Added");
+      alert("✅ Equipment Added Successfully");
 
       setEquipment({
-
         name: "",
         type: "POMPE",
-        status: "ACTIF"
-
+        status: "ACTIF",
+        domain: "HYDRAULIQUE"
       });
 
     } catch (err) {
 
-      console.log(err);
+      console.error(err);
 
-      alert("❌ Error");
-
+      alert("❌ Error Adding Equipment");
     }
-
   };
 
   return (
@@ -74,7 +70,7 @@ function AddEquipment() {
             <h1>Add Equipment</h1>
 
             <p>
-              Create new industrial equipment
+              Create a new industrial equipment
             </p>
 
           </div>
@@ -96,9 +92,51 @@ function AddEquipment() {
               name="name"
               value={equipment.name}
               onChange={handleChange}
-              placeholder="Pompe A"
+              placeholder="Pompe P-105"
               required
             />
+
+          </div>
+
+          {/* DOMAIN */}
+
+          <div className="form-group">
+
+            <label>
+
+              <FaIndustry />
+
+              {" "}Domain
+
+            </label>
+
+            <select
+              name="domain"
+              value={equipment.domain}
+              onChange={handleChange}
+            >
+
+              <option value="HYDRAULIQUE">
+                Hydraulique
+              </option>
+
+              <option value="MECANIQUE">
+                Mécanique
+              </option>
+
+              <option value="PROCESS">
+                Process
+              </option>
+
+              <option value="ENERGIE">
+                Énergie
+              </option>
+
+              <option value="ELECTRIQUE">
+                Électrique
+              </option>
+
+            </select>
 
           </div>
 
@@ -133,11 +171,11 @@ function AddEquipment() {
               </option>
 
               <option value="FOUR_INDUSTRIEL">
-                Four industriel
+                Four Industriel
               </option>
 
               <option value="ECHANGEUR_THERMIQUE">
-                Échangeur thermique
+                Échangeur Thermique
               </option>
 
               <option value="VENTILATEUR">
@@ -153,7 +191,7 @@ function AddEquipment() {
               </option>
 
               <option value="MOTEUR_ELECTRIQUE">
-                Moteur électrique
+                Moteur Électrique
               </option>
 
             </select>

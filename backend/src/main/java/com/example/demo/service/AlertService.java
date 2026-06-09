@@ -2,7 +2,6 @@ package com.example.demo.service;
 
 import com.example.demo.dao.AlertDao;
 import com.example.demo.entity.Alert;
-
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,10 +11,7 @@ public class AlertService {
 
     private final AlertDao alertDao;
 
-    public AlertService(
-            AlertDao alertDao
-    ) {
-
+    public AlertService(AlertDao alertDao) {
         this.alertDao = alertDao;
     }
 
@@ -24,9 +20,7 @@ public class AlertService {
     // =====================================
 
     public List<Alert> getAllAlerts() {
-
-        return alertDao
-                .findAllByOrderByDateDesc();
+        return alertDao.findAllByOrderByDateDesc();
     }
 
     // =====================================
@@ -35,67 +29,71 @@ public class AlertService {
 
     public Alert getById(Long id) {
 
-        return alertDao
-                .findById(id)
+        return alertDao.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException(
-                                "Alert not found"
-                        )
-                );
+                        new RuntimeException("Alert not found"));
     }
 
     // =====================================
-    // GET UNREAD ALERTS
+    // ADMIN ALERTS
     // =====================================
 
-    public List<Alert> getUnreadAlerts() {
-
-        return alertDao.findBySeenFalse();
+    public List<Alert> getUnreadAlertsAdmin() {
+        return alertDao.findBySeenAdminFalse();
     }
 
-    // =====================================
-    // COUNT UNREAD ALERTS
-    // =====================================
-
-    public int countUnread() {
-
-        return alertDao
-                .findBySeenFalse()
-                .size();
+    public int countUnreadAdmin() {
+        return alertDao.findBySeenAdminFalse().size();
     }
 
-    // =====================================
-    // MARK ALERT AS READ
-    // =====================================
+    public void markAsReadAdmin(Long id) {
 
-    public void markAsRead(Long id) {
+        Alert alert = getById(id);
 
-        Alert alert =
-                alertDao.findById(id)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Alert not found"
-                                )
-                        );
-
-        alert.setSeen(true);
+        alert.setSeenAdmin(true);
 
         alertDao.save(alert);
     }
 
-    // =====================================
-    // MARK ALL ALERTS AS READ
-    // =====================================
-
-    public void markAllAsRead() {
+    public void markAllAsReadAdmin() {
 
         List<Alert> alerts =
-                alertDao.findBySeenFalse();
+                alertDao.findBySeenAdminFalse();
 
-        for (Alert alert : alerts) {
+        alerts.forEach(alert ->
+                alert.setSeenAdmin(true));
 
-            alert.setSeen(true);
-        }
+        alertDao.saveAll(alerts);
+    }
+
+    // =====================================
+    // TECHNICIAN ALERTS
+    // =====================================
+
+    public List<Alert> getUnreadAlertsTechnician() {
+        return alertDao.findBySeenTechnicianFalse();
+    }
+
+    public int countUnreadTechnician() {
+        return alertDao.findBySeenTechnicianFalse().size();
+    }
+
+    public void markAsReadTechnician(Long id) {
+
+        Alert alert = getById(id);
+
+        alert.setSeenTechnician(true);
+
+        alertDao.save(alert);
+    }
+
+    public void markAllAsReadTechnician() {
+
+        List<Alert> alerts =
+                alertDao.findBySeenTechnicianFalse();
+
+        alerts.forEach(alert ->
+                alert.setSeenTechnician(true));
 
         alertDao.saveAll(alerts);
     }
@@ -106,18 +104,25 @@ public class AlertService {
 
     public void deleteAlert(Long id) {
 
-        Alert alert =
-                alertDao.findById(id)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Alert not found"
-                                )
-                        );
+        Alert alert = getById(id);
 
         alertDao.delete(alert);
     }
-    public List<Alert> getAlertsByDomain(String domain){
+
+    // =====================================
+    // FILTER BY DOMAIN
+    // =====================================
+
+    public List<Alert> getAlertsByDomain(String domain) {
 
         return alertDao.findByEquipmentDomain(domain);
+    }
+    public int countUnreadTechnician(String domain) {
+
+        return (int)
+                alertDao
+                        .countBySeenTechnicianFalseAndEquipmentDomain(
+                                domain
+                        );
     }
 }

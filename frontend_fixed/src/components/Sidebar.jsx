@@ -40,10 +40,15 @@ function Sidebar() {
 
       try {
 
-        const res =
-          await API.get(
-            "/alerts/count-unread"
-          );
+       
+          const role = localStorage.getItem("role");
+
+const url =
+  role === "ADMIN"
+    ? "/alerts/admin/count-unread"
+    : "/alerts/technician/count-unread";
+
+const res = await API.get(url);
 
         setNotifCount(res.data);
 

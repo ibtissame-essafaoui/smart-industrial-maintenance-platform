@@ -46,16 +46,17 @@ function Alerts() {
         await API.get("/alerts");
 
       setAlerts(
-
         Array.isArray(res.data)
           ? res.data
           : []
-
       );
 
     } catch (err) {
 
-      console.log(err);
+      console.log(
+        "Error loading alerts:",
+        err
+      );
 
     }
   };
@@ -83,11 +84,7 @@ function Alerts() {
 
     <div className="admin-layout">
 
-      {/* SIDEBAR */}
-
       <Sidebar />
-
-      {/* CONTENT */}
 
       <div className="admin-content">
 
@@ -123,6 +120,7 @@ function Alerts() {
                 </p>
 
               </div>
+
             )
           }
 
@@ -132,111 +130,123 @@ function Alerts() {
 
             {
 
-              alerts.map((alert) => (
+              alerts.map((alert) => {
 
-                <div
-                  key={alert.id}
+                const role =
+                  localStorage.getItem("role");
 
-                  onClick={() =>
-                    navigate(`/alerts/${alert.id}`)
-                  }
+                const isSeen =
+                  role === "ADMIN"
+                    ? alert.seenAdmin
+                    : alert.seenTechnician;
 
-                  className={`
-                    alert-card
-                    ${alert.level?.toLowerCase()}
-                    ${alert.seen ? "seen" : "unseen"}
-                  `}
-                >
+                return (
 
-                  {/* TIME */}
-
-                  <div className="alert-time">
-
-                    {formatDate(alert.date)}
-
-                  </div>
-
-                  {/* ICON */}
-
-                  <div className="alert-icon-box">
-
-                    {
-
-                      alert.message?.includes(
-                        "Température"
+                  <div
+                    key={alert.id}
+                    onClick={() =>
+                      navigate(
+                        `/alerts/${alert.id}`
                       )
+                    }
+                    className={`
+                      alert-card
+                      ${alert.level?.toLowerCase()}
+                      ${isSeen ? "seen" : "unseen"}
+                    `}
+                  >
 
-                        ?
+                    {/* DATE */}
 
-                        <FaTemperatureHigh />
+                    <div className="alert-time">
 
-                        :
+                      {
+                        formatDate(
+                          alert.date
+                        )
+                      }
+
+                    </div>
+
+                    {/* ICON */}
+
+                    <div className="alert-icon-box">
+
+                      {
 
                         alert.message?.includes(
-                          "Runtime"
+                          "Température"
                         )
 
-                          ?
+                          ? <FaTemperatureHigh />
 
-                          <FaClock />
+                          : alert.message?.includes(
+                              "Runtime"
+                            )
 
-                          :
+                            ? <FaClock />
 
-                          <FaTools />
+                            : <FaTools />
 
-                    }
+                      }
 
-                  </div>
+                    </div>
 
-                  {/* CONTENT */}
+                    {/* CONTENT */}
 
-                  <div className="alert-content">
+                    <div className="alert-content">
 
-                    <div className="equipment-row">
+                      <div className="equipment-row">
 
-                      <FaMicrochip />
+                        <FaMicrochip />
 
-                      <span>
-                        {alert.equipment?.name}
+                        <span>
+                          {
+                            alert.equipment?.name
+                          }
+                        </span>
+
+                      </div>
+
+                      <div className="equipment-type">
+
+                        {
+                          alert.equipment?.type
+                        }
+
+                      </div>
+
+                      <h3>
+
+                        {alert.message}
+
+                      </h3>
+
+                      <span className="alert-level">
+
+                        {alert.level}
+
                       </span>
 
                     </div>
 
-                    <div className="equipment-type">
+                    {/* UNREAD DOT */}
 
-                      {alert.equipment?.type}
+                    {
+                      !isSeen && (
 
-                    </div>
+                        <div className="alert-dot">
 
-                    <h3>
+                        </div>
 
-                      {alert.message}
-
-                    </h3>
-
-                    <span className="alert-level">
-
-                      {alert.level}
-
-                    </span>
+                      )
+                    }
 
                   </div>
 
-                  {/* NEW DOT */}
+                );
 
-                  {
-
-                    !alert.seen && (
-
-                      <div className="alert-dot"></div>
-
-                    )
-
-                  }
-
-                </div>
-
-              ))
+              })
 
             }
 

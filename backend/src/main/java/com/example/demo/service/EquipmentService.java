@@ -98,17 +98,16 @@ getEquipmentsByDomain(String domain){
 
             map.put("name", eq.getName());
 
+            map.put("domain", eq.getDomain());
+
             map.put("type", eq.getType());
 
             map.put("status", eq.getStatus());
 
-            // LAST DATA
-
             Data latestData =
-                    dataDao
-                            .findTopByEquipmentIdOrderByDateDesc(
-                                    eq.getId()
-                            );
+                    dataDao.findTopByEquipmentIdOrderByDateDesc(
+                            eq.getId()
+                    );
 
             if (latestData != null) {
 
@@ -122,13 +121,41 @@ getEquipmentsByDomain(String domain){
                         latestData.getRuntime()
                 );
 
+                map.put(
+                        "vibration",
+                        latestData.getVibration()
+                );
+
+                map.put(
+                        "pressure",
+                        latestData.getPressure()
+                );
+
+                map.put(
+                        "humidity",
+                        latestData.getHumidity()
+                );
+
+                map.put(
+                        "currentValue",
+                        latestData.getCurrentValue()
+                );
+
+                map.put(
+                        "voltage",
+                        latestData.getVoltage()
+                );
+
             } else {
 
                 map.put("temperature", 0);
-
                 map.put("runtime", 0);
+                map.put("vibration", 0);
+                map.put("pressure", 0);
+                map.put("humidity", 0);
+                map.put("currentValue", 0);
+                map.put("voltage", 0);
             }
-
             result.add(map);
         }
 

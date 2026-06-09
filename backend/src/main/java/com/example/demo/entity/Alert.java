@@ -19,7 +19,6 @@ public class Alert {
 
     private LocalDateTime date;
 
-    // 🔥 NEW FIELD
     private String cause;
 
     @ManyToOne
@@ -29,7 +28,13 @@ public class Alert {
     })
     private Equipment equipment;
 
-    private boolean seen = false;
+    // =========================
+    // READ STATUS
+    // =========================
+
+    private boolean seenAdmin = false;
+
+    private boolean seenTechnician = false;
 
     public Alert() {
     }
@@ -70,31 +75,43 @@ public class Alert {
         this.date = date;
     }
 
-    public Equipment getEquipment() {
-        return equipment;
-    }
-
-    public void setEquipment(
-            Equipment equipment
-    ) {
-        this.equipment = equipment;
-    }
-
-    public boolean isSeen() {
-        return seen;
-    }
-
-    public void setSeen(boolean seen) {
-        this.seen = seen;
-    }
-
-    // 🔥 CAUSE
-
     public String getCause() {
         return cause;
     }
 
     public void setCause(String cause) {
         this.cause = cause;
+    }
+
+    public Equipment getEquipment() {
+        return equipment;
+    }
+
+    public void setEquipment(Equipment equipment) {
+        this.equipment = equipment;
+    }
+
+    // =========================
+    // ADMIN
+    // =========================
+
+    public boolean isSeenAdmin() {
+        return seenAdmin;
+    }
+
+    public void setSeenAdmin(boolean seenAdmin) {
+        this.seenAdmin = seenAdmin;
+    }
+
+    // =========================
+    // TECHNICIAN
+    // =========================
+
+    public boolean isSeenTechnician() {
+        return seenTechnician;
+    }
+
+    public void setSeenTechnician(boolean seenTechnician) {
+        this.seenTechnician = seenTechnician;
     }
 }

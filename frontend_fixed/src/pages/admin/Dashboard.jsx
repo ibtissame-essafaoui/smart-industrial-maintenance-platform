@@ -15,7 +15,7 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend
+  Legend,
 } from "recharts";
 
 import {
@@ -24,13 +24,11 @@ import {
   FaExclamationTriangle,
   FaChartLine,
   FaClock,
-  FaTools
 } from "react-icons/fa";
 
 import "../../styles/Admin/dashboard.css";
 
 function Dashboard() {
-
   const [equipments, setEquipments] = useState([]);
 
   useEffect(() => {
@@ -38,37 +36,24 @@ function Dashboard() {
   }, []);
 
   const loadEquipments = async () => {
-
     try {
-
-      const res =
-        await API.get(
-          "/equipments/with-data"
-        );
-
-      setEquipments(
-        Array.isArray(res.data)
-          ? res.data
-          : []
-      );
-
-    } catch (err) {
-
-      console.log(err);
-
+      const res = await API.get("/equipments/with-data");
+      setEquipments(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      console.error(error);
+      setEquipments([]);
     }
   };
 
-  // ============================
+  // =========================
   // KPI
-  // ============================
+  // =========================
 
   const avgTemp =
     equipments.length > 0
       ? (
           equipments.reduce(
-            (sum, eq) =>
-              sum + (eq.temperature || 0),
+            (sum, eq) => sum + Number(eq.temperature || 0),
             0
           ) / equipments.length
         ).toFixed(1)
@@ -78,73 +63,74 @@ function Dashboard() {
     equipments.length > 0
       ? (
           equipments.reduce(
-            (sum, eq) =>
-              sum + (eq.runtime || 0),
+            (sum, eq) => sum + Number(eq.runtime || 0),
             0
           ) / equipments.length
         ).toFixed(0)
       : 0;
 
-  const criticalEquipments =
-    equipments.filter(
-      eq =>
-        (eq.temperature || 0) >= 100 ||
-        eq.status === "EN_PANNE"
-    ).length;
+  const avgVibration =
+    equipments.length > 0
+      ? (
+          equipments.reduce(
+            (sum, eq) => sum + Number(eq.vibration || 0),
+            0
+          ) / equipments.length
+        ).toFixed(2)
+      : 0;
 
-  const activeEquipments =
-    equipments.filter(
-      eq =>
-        eq.status === "ACTIF"
-    ).length;
+  const avgPressure =
+    equipments.length > 0
+      ? (
+          equipments.reduce(
+            (sum, eq) => sum + Number(eq.pressure || 0),
+            0
+          ) / equipments.length
+        ).toFixed(2)
+      : 0;
 
-  // ============================
-  // PIE
-  // ============================
+  const criticalEquipments = equipments.filter(
+    (eq) =>
+      Number(eq.temperature || 0) >= 100 ||
+      eq.status === "EN_PANNE"
+  ).length;
+
+  const activeEquipments = equipments.filter(
+    (eq) => eq.status === "ACTIF"
+  ).length;
+
+  // =========================
+  // PIE DATA
+  // =========================
 
   const pieData = [
     {
       name: "Critical",
-      value: criticalEquipments
+      value: criticalEquipments,
     },
     {
       name: "Active",
-      value: activeEquipments
-    }
+      value: activeEquipments,
+    },
   ];
 
-  const COLORS = [
-    "#ef4444",
-    "#22c55e"
-  ];
+  const COLORS = ["#ef4444", "#22c55e"];
 
-  // ============================
+  // =========================
   // CHART DATA
-  // ============================
+  // =========================
 
-  const chartData =
-    equipments.map((eq) => ({
-
-      id: eq.id,
-
-      equipmentName:
-        eq.name,
-
-      domaine:
-        eq.domaine || "N/A",
-
-      temperature:
-        eq.temperature || 0,
-
-      runtime:
-        eq.runtime || 0
-
-    }));
+  const chartData = equipments.map((eq) => ({
+    id: eq.id,
+    equipmentName: eq.name || `Equipment ${eq.id}`,
+    temperature: Number(eq.temperature || 0),
+    runtime: Number(eq.runtime || 0),
+    vibration: Number(eq.vibration || 0),
+    pressure: Number(eq.pressure || 0),
+  }));
 
   return (
-
     <div className="dashboard-layout">
-
       <Sidebar />
 
       <div className="dashboard-page">
@@ -152,9 +138,7 @@ function Dashboard() {
         {/* HEADER */}
 
         <div className="dashboard-header">
-
           <div>
-
             <h1 className="dashboard-title">
               Smart Maintenance Dashboard
             </h1>
@@ -162,143 +146,105 @@ function Dashboard() {
             <p className="dashboard-subtitle">
               Industrial Monitoring Platform
             </p>
-
           </div>
-
         </div>
 
         {/* KPI */}
 
         <div className="kpi-grid">
 
-          <div className="kpi-card blue">
-
+        <div className="kpi-card orange">
             <div className="kpi-icon">
               <FaTemperatureHigh />
             </div>
 
             <div>
-
-              <span>
-                Average Temperature
-              </span>
-
-              <h2>
-                {avgTemp} °C
-              </h2>
-
+              <span>Average Temperature</span>
+              <h2>{avgTemp} °C</h2>
             </div>
-
           </div>
 
-          <div className="kpi-card orange">
-
+          <div className="kpi-card blue">
             <div className="kpi-icon">
               <FaClock />
             </div>
 
             <div>
-
-              <span>
-                Average Runtime
-              </span>
-
-              <h2>
-                {avgRuntime} h
-              </h2>
-
+              <span>Average Runtime</span>
+              <h2>{avgRuntime} h</h2>
             </div>
+          </div>
 
+          <div className="kpi-card purple">
+            <div className="kpi-icon">📳</div>
+
+            <div>
+              <span>Average Vibration</span>
+              <h2>{avgVibration}</h2>
+            </div>
+          </div>
+
+          <div className="kpi-card cyan">
+            <div className="kpi-icon">⚙️</div>
+
+            <div>
+              <span>Average Pressure</span>
+              <h2>{avgPressure} bar</h2>
+            </div>
           </div>
 
           <div className="kpi-card red">
-
             <div className="kpi-icon">
               <FaExclamationTriangle />
             </div>
 
             <div>
-
-              <span>
-                Critical Equipments
-              </span>
-
-              <h2>
-                {criticalEquipments}
-              </h2>
-
+              <span>Critical Equipments</span>
+              <h2>{criticalEquipments}</h2>
             </div>
-
           </div>
 
           <div className="kpi-card green">
-
             <div className="kpi-icon">
               <FaMicrochip />
             </div>
 
             <div>
-
-              <span>
-                Total Equipments
-              </span>
-
-              <h2>
-                {equipments.length}
-              </h2>
-
+              <span>Total Equipments</span>
+              <h2>{equipments.length}</h2>
             </div>
-
           </div>
 
         </div>
 
-        {/* CHARTS */}
+        {/* TEMPERATURE + STATUS */}
 
         <div className="main-grid">
 
           <div className="chart-card">
 
             <div className="card-title">
+              <div className="title-icon">
+                <FaChartLine />
+              </div>
 
-              <FaChartLine />
-
-              <h2>
-                Temperature Analysis
-              </h2>
-
+              <h2>Temperature Analysis</h2>
             </div>
 
-            <ResponsiveContainer
-              width="100%"
-              height={320}
-            >
-
-              <AreaChart
-                data={chartData}
-              >
-
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                />
-
-                <XAxis
-                  dataKey="equipmentName"
-                />
-
+            <ResponsiveContainer width="100%" height={320}>
+              <AreaChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="equipmentName" />
                 <YAxis />
-
                 <Tooltip />
-
-                <Area
-                  type="monotone"
-                  dataKey="temperature"
-                  stroke="#3b82f6"
-                  fill="#93c5fd"
-                />
-
+               <Area
+  type="monotone"
+  dataKey="temperature"
+  stroke="#ed560b"
+  fill="#ff4112"
+  fillOpacity={0.8}
+/>
               </AreaChart>
-
             </ResponsiveContainer>
 
           </div>
@@ -306,20 +252,14 @@ function Dashboard() {
           <div className="status-card">
 
             <div className="card-title">
+              <div className="title-icon">
+                <FaChartLine />
+              </div>
 
-              <FaTools />
-
-              <h2>
-                Equipment Status
-              </h2>
-
+              <h2>Equipment Status</h2>
             </div>
 
-            <ResponsiveContainer
-              width="100%"
-              height={320}
-            >
-
+            <ResponsiveContainer width="100%" height={320}>
               <PieChart>
 
                 <Pie
@@ -328,28 +268,18 @@ function Dashboard() {
                   outerRadius={100}
                   label
                 >
-
-                  {
-                    pieData.map(
-                      (entry, index) => (
-
-                        <Cell
-                          key={index}
-                          fill={COLORS[index]}
-                        />
-
-                      )
-                    )
-                  }
-
+                  {pieData.map((entry, index) => (
+                    <Cell
+                      key={index}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
                 </Pie>
 
                 <Tooltip />
-
                 <Legend />
 
               </PieChart>
-
             </ResponsiveContainer>
 
           </div>
@@ -361,45 +291,87 @@ function Dashboard() {
         <div className="chart-card full-width">
 
           <div className="card-title">
+            <div className="title-icon">
+              <FaChartLine />
+            </div>
+            <h2>Runtime Analytics</h2>
+          </div>
+          <ResponsiveContainer width="100%" height={320}>
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="equipmentName" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar
+  dataKey="runtime"
+  fill="#11aa28"
+  name="Runtime (h)"
+  radius={[8, 8, 0, 0]}
+/>
+            </BarChart>
+          </ResponsiveContainer>
 
-            <FaClock />
+        </div>
 
-            <h2>
-              Runtime Analytics
-            </h2>
+        {/* VIBRATION */}
 
+        <div className="chart-card full-width">
+
+          <div className="card-title">
+            <div className="title-icon">
+              <FaChartLine />
+            </div>
+
+            <h2>Vibration Analytics</h2>
           </div>
 
-          <ResponsiveContainer
-            width="100%"
-            height={320}
-          >
-
-            <BarChart
-              data={chartData}
-            >
-
-              <CartesianGrid
-                strokeDasharray="3 3"
-              />
-
-              <XAxis
-                dataKey="equipmentName"
-              />
-
+          <ResponsiveContainer width="100%" height={320}>
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="equipmentName" />
               <YAxis />
-
               <Tooltip />
-
               <Legend />
 
-              <Bar
-                dataKey="runtime"
-                fill="#f97316"
-              />
-
+             <Bar
+  dataKey="vibration"
+  fill="#3e278f"
+  name="Vibration"
+  radius={[8, 8, 0, 0]}
+/>
             </BarChart>
+          </ResponsiveContainer>
 
+        </div>
+
+        {/* PRESSURE */}
+
+        <div className="chart-card full-width">
+
+          <div className="card-title">
+            <div className="title-icon">
+              <FaChartLine />
+            </div>
+
+            <h2>Pressure Analytics</h2>
+          </div>
+
+          <ResponsiveContainer width="100%" height={320}>
+            <AreaChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="equipmentName" />
+              <YAxis />
+              <Tooltip />
+
+              <Area
+  type="monotone"
+  dataKey="pressure"
+  stroke="#0891b2"
+  fill="#67e8f9"
+  fillOpacity={0.8}
+/>
+            </AreaChart>
           </ResponsiveContainer>
 
         </div>
@@ -409,97 +381,60 @@ function Dashboard() {
         <div className="table-card">
 
           <div className="card-title">
-
             <FaMicrochip />
-
-            <h2>
-              Equipments Overview
-            </h2>
-
+            <h2>Equipments Overview</h2>
           </div>
 
           <table>
 
             <thead>
-
               <tr>
-
-                <th>ID</th>
+                <th>ID-equipement</th>
                 <th>Name</th>
-                <th>Domaine</th>
                 <th>Temperature</th>
                 <th>Runtime</th>
-                <th>Status</th>
-
+                <th>Vibration</th>
+                <th>Pressure</th>
               </tr>
-
             </thead>
 
             <tbody>
 
-              {
-                equipments.map(
-                  (eq) => (
+              {equipments.length === 0 ? (
+                <tr>
+                  <td colSpan="6">
+                    No equipment data available
+                  </td>
+                </tr>
+              ) : (
+                equipments.map((eq) => (
+                  <tr key={eq.id}>
 
-                    <tr key={eq.id}>
+                    <td>#{eq.id}</td>
 
-                      <td>
-                        #{eq.id}
-                      </td>
+                    <td>{eq.name}</td>
 
-                      <td>
-                        {eq.name}
-                      </td>
+                    <td>
+                      <span
+                        className={
+                          Number(eq.temperature || 0) >= 100
+                            ? "danger-text"
+                            : "normal-text"
+                        }
+                      >
+                        {eq.temperature || 0} °C
+                      </span>
+                    </td>
 
-                      <td>
-                        {eq.domaine || "-"}
-                      </td>
+                    <td>{eq.runtime || 0} h</td>
 
-                      <td>
+                    <td>{eq.vibration || 0}</td>
 
-                        <span
-                          className={
-                            eq.temperature >= 100
-                              ? "danger-text"
-                              : "normal-text"
-                          }
-                        >
+                    <td>{eq.pressure || 0} bar</td>
 
-                          {eq.temperature || 0}°C
-
-                        </span>
-
-                      </td>
-
-                      <td>
-
-                        {eq.runtime || 0} h
-
-                      </td>
-
-                      <td>
-
-                        <span
-                          className={
-                            eq.status === "EN_PANNE"
-                              ? "status critical"
-                              : eq.status === "EN_MAINTENANCE"
-                              ? "status maintenance"
-                              : "status running"
-                          }
-                        >
-
-                          {eq.status}
-
-                        </span>
-
-                      </td>
-
-                    </tr>
-
-                  )
-                )
-              }
+                  </tr>
+                ))
+              )}
 
             </tbody>
 
@@ -508,7 +443,6 @@ function Dashboard() {
         </div>
 
       </div>
-
     </div>
   );
 }

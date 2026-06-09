@@ -25,16 +25,12 @@ import "../../styles/Admin/alertDetails.css";
 
 function TechnicianAlertDetails() {
 
-  const { id } =
-    useParams();
+  const { id } = useParams();
 
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
-  const [
-    alert,
-    setAlert
-  ] = useState(null);
+  const [alert, setAlert] =
+    useState(null);
 
   // =========================
   // LOAD ALERT
@@ -42,54 +38,36 @@ function TechnicianAlertDetails() {
 
   useEffect(() => {
 
-    loadAlert();
-
-    markAsRead();
+    fetchAlert();
 
   }, [id]);
 
-  // =========================
-  // GET ALERT
-  // =========================
+  const fetchAlert = async () => {
 
-  const loadAlert =
-    async () => {
+    try {
 
-      try {
+      // Mark as read for technician
 
-        const res =
-          await API.get(
-            `/alerts/${id}`
-          );
+      await API.put(
+        `/alerts/technician/read/${id}`
+      );
 
-        setAlert(
-          res.data
+      // Load alert details
+
+      const res =
+        await API.get(
+          `/alerts/${id}`
         );
 
-      } catch(err){
+      setAlert(
+        res.data
+      );
 
-        console.log(err);
-      }
-    };
+    } catch (err) {
 
-  // =========================
-  // MARK AS READ
-  // =========================
-
-  const markAsRead =
-    async () => {
-
-      try {
-
-        await API.put(
-          `/alerts/read/${id}`
-        );
-
-      } catch(err){
-
-        console.log(err);
-      }
-    };
+      console.log(err);
+    }
+  };
 
   // =========================
   // ICON
@@ -97,11 +75,11 @@ function TechnicianAlertDetails() {
 
   const getIcon = () => {
 
-    if(
-      alert.message.includes(
+    if (
+      alert?.message?.includes(
         "Température"
       )
-    ){
+    ) {
 
       return <FaThermometerHalf />;
     }
@@ -113,7 +91,7 @@ function TechnicianAlertDetails() {
   // LOADING
   // =========================
 
-  if(!alert){
+  if (!alert) {
 
     return (
 
@@ -122,14 +100,26 @@ function TechnicianAlertDetails() {
         Chargement...
 
       </div>
+
     );
   }
+
+  // =========================
+  // STATUS
+  // =========================
+
+  const isSeen =
+    alert.seenTechnician;
+
+  // =========================
+  // RENDER
+  // =========================
 
   return (
 
     <div className="alert-details-page">
 
-      {/* BACK */}
+      {/* BACK BUTTON */}
 
       <button
         className="back-btn"
@@ -150,12 +140,14 @@ function TechnicianAlertDetails() {
 
       <div className="details-card">
 
+        {/* HEADER */}
+
         <div className="details-header">
 
           <div
             className={`
               alert-big-icon
-              ${alert.level.toLowerCase()}
+              ${alert.level?.toLowerCase()}
             `}
           >
 
@@ -180,7 +172,7 @@ function TechnicianAlertDetails() {
             <span
               className={`
                 details-level
-                ${alert.level.toLowerCase()}
+                ${alert.level?.toLowerCase()}
               `}
             >
 
@@ -192,9 +184,11 @@ function TechnicianAlertDetails() {
 
         </div>
 
-        {/* GRID */}
+        {/* DETAILS */}
 
         <div className="details-grid">
+
+          {/* EQUIPMENT */}
 
           <div className="detail-box">
 
@@ -211,12 +205,19 @@ function TechnicianAlertDetails() {
               </span>
 
               <h3>
-                {alert.equipment?.name}
+
+                {
+                  alert.equipment?.name
+                  || "-"
+                }
+
               </h3>
 
             </div>
 
           </div>
+
+          {/* TYPE */}
 
           <div className="detail-box">
 
@@ -233,12 +234,19 @@ function TechnicianAlertDetails() {
               </span>
 
               <h3>
-                {alert.equipment?.type}
+
+                {
+                  alert.equipment?.type
+                  || "-"
+                }
+
               </h3>
 
             </div>
 
           </div>
+
+          {/* DATE */}
 
           <div className="detail-box">
 
@@ -257,8 +265,9 @@ function TechnicianAlertDetails() {
               <h3>
 
                 {
-                  new Date(alert.date)
-                  .toLocaleString()
+                  new Date(
+                    alert.date
+                  ).toLocaleString()
                 }
 
               </h3>
@@ -266,6 +275,8 @@ function TechnicianAlertDetails() {
             </div>
 
           </div>
+
+          {/* STATUS */}
 
           <div className="detail-box">
 
@@ -282,7 +293,13 @@ function TechnicianAlertDetails() {
               </span>
 
               <h3>
-                Consultée
+
+                {
+                  isSeen
+                    ? "Consultée"
+                    : "Non consultée"
+                }
+
               </h3>
 
             </div>
@@ -291,7 +308,7 @@ function TechnicianAlertDetails() {
 
         </div>
 
-        {/* CAUSE */}
+        {/* ANALYSIS */}
 
         <div className="analysis-section">
 
@@ -299,13 +316,16 @@ function TechnicianAlertDetails() {
 
             <FaExclamationTriangle />
 
-            Analyse de l’alerte
+            Analyse de l'alerte
 
           </h2>
 
           <p>
 
-            {alert.cause}
+            {
+              alert.cause ||
+              "Aucune cause disponible"
+            }
 
           </p>
 

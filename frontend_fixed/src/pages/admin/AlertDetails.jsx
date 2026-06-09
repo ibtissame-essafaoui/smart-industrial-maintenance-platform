@@ -1,15 +1,8 @@
-import React, {
-  useEffect,
-  useState
-} from "react";
-
-import {
-  useParams,
-  useNavigate
-} from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
 import API from "../../services/api";
-import Sidebar from "../../components/Sidebar";
+
 import {
   FaArrowLeft,
   FaExclamationTriangle,
@@ -26,58 +19,46 @@ import "../../styles/Admin/alertDetails.css";
 function AlertDetails() {
 
   const { id } = useParams();
-
   const navigate = useNavigate();
 
-  const [alert, setAlert] =
-  useState(null);
+  const [alert, setAlert] = useState(null);
 
   // =========================
-  // LOAD ALERT
+  // LOAD ALERT + MARK READ
   // =========================
 
   useEffect(() => {
 
-    loadAlert();
+    const fetchAlert = async () => {
 
-    markAsRead();
+      try {
+
+        const role = localStorage.getItem("role");
+
+        const readUrl =
+          role === "ADMIN"
+            ? `/alerts/admin/read/${id}`
+            : `/alerts/technician/read/${id}`;
+
+        // Mark alert as read
+        await API.put(readUrl);
+
+        // Get alert details
+        const res =
+          await API.get(`/alerts/${id}`);
+
+        setAlert(res.data);
+
+      } catch (err) {
+
+        console.log(err);
+
+      }
+    };
+
+    fetchAlert();
 
   }, [id]);
-
-  // =========================
-  // GET ALERT
-  // =========================
-
-  const loadAlert = async () => {
-
-    try {
-
-      const res =
-      await API.get(`/alerts/${id}`);
-
-      setAlert(res.data);
-
-    } catch (err) {
-
-      console.log(err);
-    }
-  };
-
-  // =========================
-  // MARK AS READ
-  // =========================
-
-  const markAsRead = async () => {
-
-    try {
-
-      await API.put(`/alerts/read/${id}`);
-
-    } catch (err) {
-
-      console.log(err);
-    }
-  };
 
   // =========================
   // ICON
@@ -86,7 +67,7 @@ function AlertDetails() {
   const getIcon = () => {
 
     if (
-      alert.message.includes("Température")
+      alert?.message?.includes("Température")
     ) {
 
       return <FaThermometerHalf />;
@@ -104,30 +85,40 @@ function AlertDetails() {
     return (
 
       <div className="loading-page">
-
         Chargement...
-
       </div>
+
     );
   }
+
+  // =========================
+  // STATUS BY ROLE
+  // =========================
+
+  const role =
+    localStorage.getItem("role");
+
+  const isSeen =
+    role === "ADMIN"
+      ? alert.seenAdmin
+      : alert.seenTechnician;
+
+  // =========================
+  // RENDER
+  // =========================
 
   return (
 
     <div className="alert-details-page">
 
-      {/* BACK */}
+      {/* BACK BUTTON */}
 
       <button
         className="back-btn"
-        onClick={() =>
-          navigate("/alerts")
-        }
+        onClick={() => navigate("/alerts")}
       >
-
         <FaArrowLeft />
-
         Retour
-
       </button>
 
       {/* CARD */}
@@ -139,46 +130,32 @@ function AlertDetails() {
         <div className="details-header">
 
           <div
-            className={`
-              alert-big-icon
-              ${alert.level.toLowerCase()}
-            `}
+            className={`alert-big-icon ${alert.level?.toLowerCase()}`}
           >
-
             {getIcon()}
-
           </div>
 
           <div>
 
             <p className="details-subtitle">
-
               Surveillance Industrielle
-
             </p>
 
             <h1>
-
               {alert.message}
-
             </h1>
 
             <span
-              className={`
-                details-level
-                ${alert.level.toLowerCase()}
-              `}
+              className={`details-level ${alert.level?.toLowerCase()}`}
             >
-
               {alert.level}
-
             </span>
 
           </div>
 
         </div>
 
-        {/* INFOS */}
+        {/* INFO GRID */}
 
         <div className="details-grid">
 
@@ -187,19 +164,15 @@ function AlertDetails() {
           <div className="detail-box">
 
             <div className="detail-icon">
-
               <FaMicrochip />
-
             </div>
 
             <div>
 
-              <span>
-                Équipement
-              </span>
+              <span>Équipement</span>
 
               <h3>
-                {alert.equipment?.name}
+                {alert.equipment?.name || "-"}
               </h3>
 
             </div>
@@ -211,19 +184,15 @@ function AlertDetails() {
           <div className="detail-box">
 
             <div className="detail-icon">
-
               <FaTools />
-
             </div>
 
             <div>
 
-              <span>
-                Type
-              </span>
+              <span>Type</span>
 
               <h3>
-                {alert.equipment?.type}
+                {alert.equipment?.type || "-"}
               </h3>
 
             </div>
@@ -235,24 +204,15 @@ function AlertDetails() {
           <div className="detail-box">
 
             <div className="detail-icon">
-
               <FaCalendarAlt />
-
             </div>
 
             <div>
 
-              <span>
-                Date
-              </span>
+              <span>Date</span>
 
               <h3>
-
-                {
-                  new Date(alert.date)
-                  .toLocaleString()
-                }
-
+                {new Date(alert.date).toLocaleString()}
               </h3>
 
             </div>
@@ -264,21 +224,17 @@ function AlertDetails() {
           <div className="detail-box">
 
             <div className="detail-icon success">
-
               <FaCheckCircle />
-
             </div>
 
             <div>
 
-              <span>
-                Statut
-              </span>
+              <span>Statut</span>
 
               <h3>
-
-                Consultée
-
+                {isSeen
+                  ? "Consultée"
+                  : "Non consultée"}
               </h3>
 
             </div>
@@ -287,22 +243,18 @@ function AlertDetails() {
 
         </div>
 
-        {/* CAUSE */}
+        {/* ANALYSIS */}
 
         <div className="analysis-section">
 
           <h2>
-
             <FaExclamationTriangle />
-
-            Analyse de l’alerte
-
+            Analyse de l'alerte
           </h2>
 
           <p>
-
-            {alert.cause}
-
+            {alert.cause ||
+              "Aucune cause disponible"}
           </p>
 
         </div>
