@@ -49,6 +49,11 @@ public class UserService {
             );
         }
 
+        // Générer automatiquement l'email OCP si absent
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            user.setEmail(user.getUsername() + "@ocpgroupe.com");
+        }
+
         return userDao.save(user);
     }
 

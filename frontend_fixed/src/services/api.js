@@ -34,6 +34,7 @@ API.interceptors.response.use(
       localStorage.removeItem("role");
       localStorage.removeItem("domain");
       localStorage.removeItem("username");
+      localStorage.removeItem("email");
 
       // Rediriger vers la page de connexion
       window.location.href = "/login";

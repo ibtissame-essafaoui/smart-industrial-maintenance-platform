@@ -299,6 +299,8 @@ function UsersPage() {
 
                 <th>Username</th>
 
+                <th>Email</th>
+
                 <th>Role</th>
 
                 <th>Domain</th>
@@ -322,6 +324,10 @@ function UsersPage() {
 
                     <td>
                       {u.username}
+                    </td>
+
+                    <td>
+                      {u.email || `${u.username}@ocpgroupe.com`}
                     </td>
 
                     <td>

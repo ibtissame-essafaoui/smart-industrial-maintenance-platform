@@ -19,16 +19,21 @@ public class AuthResponse {
     // Nom d'utilisateur affiché dans l'interface
     private String username;
 
+    // Email OCP de l'utilisateur (username@ocpgroupe.com)
+    private String email;
+
     public AuthResponse(
             String token,
             String role,
             String domain,
-            String username
+            String username,
+            String email
     ) {
         this.token    = token;
         this.role     = role;
         this.domain   = domain;
         this.username = username;
+        this.email    = email;
     }
 
     // =====================
@@ -39,4 +44,5 @@ public class AuthResponse {
     public String getRole()     { return role; }
     public String getDomain()   { return domain; }
     public String getUsername() { return username; }
+    public String getEmail()    { return email; }
 }

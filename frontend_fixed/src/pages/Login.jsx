@@ -47,6 +47,7 @@ function Login() {
       localStorage.setItem("role",     res.data.role);
       localStorage.setItem("domain",   res.data.domain);
       localStorage.setItem("username", res.data.username);
+      localStorage.setItem("email",    res.data.email);
 
       // Redirection selon le rôle de l'utilisateur
       if (res.data.role === "ADMIN") {

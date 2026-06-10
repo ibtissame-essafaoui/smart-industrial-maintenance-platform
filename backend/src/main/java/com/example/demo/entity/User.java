@@ -18,6 +18,8 @@ public class User {
 
     private String domain;
 
+    private String email;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -61,6 +63,14 @@ public class User {
             String domain
     ) {
         this.domain = domain;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Role getRole() {

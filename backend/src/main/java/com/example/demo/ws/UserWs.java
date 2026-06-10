@@ -108,7 +108,8 @@ public class UserWs {
                         token,
                         user.getRole().name(),
                         user.getDomain(),
-                        user.getUsername()
+                        user.getUsername(),
+                        user.getEmail()
                 )
         );
     }
