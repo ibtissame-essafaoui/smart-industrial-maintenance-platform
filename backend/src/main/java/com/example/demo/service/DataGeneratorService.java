@@ -26,7 +26,7 @@ public class DataGeneratorService {
         this.dataService = dataService;
     }
 
-    @Scheduled(fixedRate = 3600000)
+    //@Scheduled(fixedRate = 3600000)
     public void generateData() {
 
         System.out.println("GENERATING DATA -> "

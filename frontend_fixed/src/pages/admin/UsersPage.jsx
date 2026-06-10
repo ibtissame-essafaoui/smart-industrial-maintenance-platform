@@ -1,151 +1,207 @@
-import React, {
-  useEffect,
-  useState
-} from "react";
+import React, { useEffect, useState } from "react";
 
-import API
-from "../../services/api";
-
-import Sidebar
-from "../../components/Sidebar";
+import API from "../../services/api";
+import Sidebar from "../../components/Sidebar";
 
 import {
   FaUsers,
   FaTrash,
-  FaUserPlus
+  FaUserPlus,
+  FaEdit,
+  FaSave,
+  FaTimes
 } from "react-icons/fa";
 
 import "../../styles/Admin/users.css";
 
 function UsersPage() {
 
-  // =====================
-  // STATES
-  // =====================
+  const [users, setUsers] = useState([]);
 
-  const [users,
-    setUsers] =
-    useState([]);
+  const [form, setForm] = useState({
+    username: "",
+    password: "",
+    email: "",
+    role: "TECHNICIEN",
+    domain: "MECANIQUE"
+  });
 
-  const [form,
-    setForm] =
-    useState({
-
-      username:"",
-      password:"",
-      role:"TECHNICIEN",
-      domain:"MECANIQUE"
-
-    });
-
-  // =====================
-  // LOAD USERS
-  // =====================
+  const [editingId, setEditingId] =
+    useState(null);
 
   useEffect(() => {
-
     loadUsers();
-
   }, []);
 
-  const loadUsers =
-    async () => {
+  const loadUsers = async () => {
 
-      try {
+    try {
 
-        const res =
-          await API.get(
-            "/users"
-          );
+      const res =
+        await API.get("/users");
 
-        setUsers(
-          Array.isArray(res.data)
-            ? res.data
-            : []
-        );
+      setUsers(
+        Array.isArray(res.data)
+          ? res.data
+          : []
+      );
 
-      } catch(err){
+    } catch (err) {
 
-        console.log(err);
-      }
-    };
+      console.log(err);
 
-  // =====================
+    }
+  };
+
+  // ======================
   // ADD USER
-  // =====================
+  // ======================
 
-  const addUser =
-    async () => {
+  const addUser = async () => {
 
-      try {
+    if (
+      !form.email
+        .toLowerCase()
+        .endsWith("@ocpgroupe.ma")
+    ) {
 
-        await API.post(
+      alert(
+        "Email doit terminer par @ocpgroupe.ma"
+      );
 
-          "/users",
+      return;
+    }
 
-          form
+    try {
 
-        );
+      await API.post(
+        "/users",
+        form
+      );
 
-        setForm({
+      setForm({
+        username: "",
+        password: "",
+        email: "",
+        role: "TECHNICIEN",
+        domain: "MECANIQUE"
+      });
 
-          username:"",
-          password:"",
-          role:"TECHNICIEN",
-          domain:"MECANIQUE"
+      loadUsers();
 
-        });
+    } catch (err) {
 
-        loadUsers();
+      console.log(err);
 
-      } catch(err){
+    }
+  };
 
-        console.log(err);
-      }
-    };
+  // ======================
+  // DELETE
+  // ======================
 
-  // =====================
-  // DELETE USER
-  // =====================
+  const deleteUser = async (id) => {
 
-  const deleteUser =
-    async (id) => {
+    if (
+      !window.confirm(
+        "Supprimer cet utilisateur ?"
+      )
+    )
+      return;
 
-      const confirmDelete =
-        window.confirm(
-          "Supprimer utilisateur ?"
-        );
+    try {
 
-      if(!confirmDelete)
-        return;
+      await API.delete(
+        `/users/${id}`
+      );
 
-      try {
+      loadUsers();
 
-        await API.delete(
-          `/users/${id}`
-        );
+    } catch (err) {
 
-        loadUsers();
+      console.log(err);
 
-      } catch(err){
+    }
+  };
 
-        console.log(err);
-      }
-    };
+  // ======================
+  // EDIT
+  // ======================
+
+  const startEdit = (user) => {
+
+    setEditingId(user.id);
+
+    setForm({
+      username: user.username,
+      password: "",
+      email: user.email || "",
+      role: user.role,
+      domain: user.domain
+    });
+  };
+
+  const cancelEdit = () => {
+
+    setEditingId(null);
+
+    setForm({
+      username: "",
+      password: "",
+      email: "",
+      role: "TECHNICIEN",
+      domain: "MECANIQUE"
+    });
+  };
+
+  const updateUser = async () => {
+
+    if (
+      !form.email
+        .toLowerCase()
+        .endsWith("@ocpgroupe.ma")
+    ) {
+
+      alert(
+        "Email doit terminer par @ocpgroupe.ma"
+      );
+
+      return;
+    }
+
+    try {
+
+      await API.put(
+        `/users/${editingId}`,
+        form
+      );
+
+      setEditingId(null);
+
+      setForm({
+        username: "",
+        password: "",
+        email: "",
+        role: "TECHNICIEN",
+        domain: "MECANIQUE"
+      });
+
+      loadUsers();
+
+    } catch (err) {
+
+      console.log(err);
+
+    }
+  };
 
   return (
 
     <div className="admin-layout">
 
-      {/* SIDEBAR */}
-
       <Sidebar />
 
-      {/* PAGE */}
-
       <div className="users-page">
-
-        {/* HEADER */}
 
         <div className="users-header">
 
@@ -173,48 +229,51 @@ function UsersPage() {
             type="text"
             placeholder="Username"
             value={form.username}
-            onChange={(e)=>
-
+            onChange={(e) =>
               setForm({
-
                 ...form,
-
-                username:
-                e.target.value
+                username: e.target.value
               })
             }
           />
 
           <input
             type="password"
-            placeholder="Password"
+            placeholder={
+              editingId
+                ? "Nouveau mot de passe (optionnel)"
+                : "Password"
+            }
             value={form.password}
-            onChange={(e)=>
-
+            onChange={(e) =>
               setForm({
-
                 ...form,
+                password: e.target.value
+              })
+            }
+          />
 
-                password:
-                e.target.value
+          <input
+            type="email"
+            placeholder="Email @ocpgroupe.ma"
+            value={form.email}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                email: e.target.value
               })
             }
           />
 
           <select
             value={form.role}
-            onChange={(e)=>
-
+            onChange={(e) =>
               setForm({
-
                 ...form,
-
-                role:
-                e.target.value
+                role: e.target.value
               })
             }
           >
-
             <option value="ADMIN">
               ADMIN
             </option>
@@ -222,23 +281,17 @@ function UsersPage() {
             <option value="TECHNICIEN">
               TECHNICIEN
             </option>
-
           </select>
 
           <select
             value={form.domain}
-            onChange={(e)=>
-
+            onChange={(e) =>
               setForm({
-
                 ...form,
-
-                domain:
-                e.target.value
+                domain: e.target.value
               })
             }
           >
-
             <option value="MECANIQUE">
               MECANIQUE
             </option>
@@ -270,18 +323,37 @@ function UsersPage() {
             <option value="COMPRESSEUR">
               COMPRESSEUR
             </option>
-
           </select>
 
-          <button
-            onClick={addUser}
-          >
+          {editingId ? (
 
-            <FaUserPlus />
+            <>
+              <button
+                onClick={updateUser}
+              >
+                <FaSave />
+                Modifier
+              </button>
 
-            Ajouter
+              <button
+                className="cancel-btn"
+                onClick={cancelEdit}
+              >
+                <FaTimes />
+                Annuler
+              </button>
+            </>
 
-          </button>
+          ) : (
+
+            <button
+              onClick={addUser}
+            >
+              <FaUserPlus />
+              Ajouter
+            </button>
+
+          )}
 
         </div>
 
@@ -296,15 +368,10 @@ function UsersPage() {
               <tr>
 
                 <th>ID</th>
-
                 <th>Username</th>
-
                 <th>Email</th>
-
                 <th>Role</th>
-
                 <th>Domain</th>
-
                 <th>Actions</th>
 
               </tr>
@@ -313,61 +380,61 @@ function UsersPage() {
 
             <tbody>
 
-              {
-                users.map((u)=>(
+              {users.map((u) => (
 
-                  <tr key={u.id}>
+                <tr key={u.id}>
 
-                    <td>
-                      #{u.id}
-                    </td>
+                  <td>
+                    #{u.id}
+                  </td>
 
-                    <td>
-                      {u.username}
-                    </td>
+                  <td>
+                    {u.username}
+                  </td>
 
-                    <td>
-                      {u.email || `${u.username}@ocpgroupe.com`}
-                    </td>
+                  <td>
+                    {u.email}
+                  </td>
 
-                    <td>
+                  <td>
 
-                      <span
-                        className={`role-badge ${u.role}`}
-                      >
+                    <span
+                      className={`role-badge ${u.role}`}
+                    >
+                      {u.role}
+                    </span>
 
-                        {u.role}
+                  </td>
 
-                      </span>
+                  <td>
+                    {u.domain}
+                  </td>
 
-                    </td>
+                  <td>
 
-                    <td>
+                    <button
+                      className="edit-btn"
+                      onClick={() =>
+                        startEdit(u)
+                      }
+                    >
+                      <FaEdit />
+                    </button>
 
-                      {u.domain}
+                    <button
+                      className="delete-btn"
+                      onClick={() =>
+                        deleteUser(u.id)
+                      }
+                    >
+                      <FaTrash />
+                    </button>
 
-                    </td>
+                  </td>
 
-                    <td>
+                </tr>
 
-                      <button
-                        className="delete-btn"
-                        onClick={()=>
-                          deleteUser(
-                            u.id
-                          )
-                        }
-                      >
-
-                        <FaTrash />
-
-                      </button>
-
-                    </td>
-
-                  </tr>
-                ))
-              }
+              ))}
 
             </tbody>
 
